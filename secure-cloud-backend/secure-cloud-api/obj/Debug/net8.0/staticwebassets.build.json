@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "vPU8FfAr2k4JrTN/nr6SfnqaTkHyWZd2OEPigBzd7T8=",
+  "Source": "secure-cloud-api",
+  "BasePath": "_content/secure-cloud-api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

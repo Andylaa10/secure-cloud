@@ -1,0 +1,23 @@
+﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER $APP_UID
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["./secure-cloud/secure-cloud-backend/secure-cloud-api/secure-cloud-api.csproj", "secure-cloud-api/"]
+RUN dotnet restore "./secure-cloud/secure-cloud-backend/secure-cloud-api/secure-cloud-api.csproj"
+COPY . .
+WORKDIR "/src/secure-cloud/secure-cloud-backend/secure-cloud-api"
+RUN dotnet build "secure-cloud-api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "secure-cloud-api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "secure-cloud-api.dll"]
