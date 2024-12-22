@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  #Backend
+  backend:
+    ports:
+      - "9090:8080"
+    image: backend
+    build:
+      context: .
+      dockerfile: ./secure-cloud-backend/secure-cloud-api/Dockerfile
+
+  #Fronted
+  frontend:
+    ports:
+      - "8083:5173"
+    build:
+      context: .
+      dockerfile: ./secure-cloud-frontend/Dockerfile
+    volumes:
+      - ./secure-cloud-frontend/src:/app/src:delegated
+    networks:
+      - local_network
+
+  #Keycloak
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    ports:
+      - "8080:8080"
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+    command: start-dev
+
+networks:
+  local_network:
+    driver: bridge

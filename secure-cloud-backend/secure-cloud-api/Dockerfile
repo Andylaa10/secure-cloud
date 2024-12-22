@@ -7,10 +7,11 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["./secure-cloud/secure-cloud-backend/secure-cloud-api/secure-cloud-api.csproj", "secure-cloud-api/"]
-RUN dotnet restore "./secure-cloud/secure-cloud-backend/secure-cloud-api/secure-cloud-api.csproj"
+COPY ["./secure-cloud-backend/secure-cloud-api/secure-cloud-api.csproj", "./secure-cloud-backend/secure-cloud-api/"]
+
+RUN dotnet restore "./secure-cloud-backend/secure-cloud-api/secure-cloud-api.csproj"
 COPY . .
-WORKDIR "/src/secure-cloud/secure-cloud-backend/secure-cloud-api"
+WORKDIR "/src/secure-cloud-backend/secure-cloud-api"
 RUN dotnet build "secure-cloud-api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
