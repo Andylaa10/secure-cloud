@@ -1,8 +1,10 @@
 import {File, House, Users} from "lucide-react"
 import {Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, useSidebar,} from "@/components/ui/sidebar"
-import React from "react";
+import React, {useEffect} from "react";
 import {NavUser} from "@/components/nav-user.tsx";
 import {NavMain} from "@/components/nav-main.tsx";
+import {UserAtom} from "@/core/atoms/userAtom";
+import {useAtom} from "jotai";
 
 // This is sample data.
 const data = {
@@ -32,7 +34,12 @@ const data = {
 }
 
 export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
+    const [user] = useAtom(UserAtom);
     const sidebarContext = useSidebar();
+
+    useEffect(() => {
+        console.log(user);
+    }, [user])
 
     return (
         <Sidebar collapsible="icon" {...props}>
@@ -49,7 +56,7 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
                 <NavMain items={data.navMain} label={'Navigate'}/>
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={data.user}/>
+                <NavUser user={user}/>
             </SidebarFooter>
             <SidebarRail/>
         </Sidebar>

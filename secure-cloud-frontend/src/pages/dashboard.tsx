@@ -11,10 +11,43 @@ import {
 import {AppSidebar} from "@/components/app-sidebar.tsx";
 import {Outlet, useLocation} from "react-router-dom";
 import {ModeToggle} from "@/components/mode-toggle.tsx";
+import {KeycloakService} from "@/core/services/keycloak-service.ts";
+import {useEffect} from "react";
+import {useAtom} from "jotai";
+import {TokenAtom} from "@/core/atoms/tokenAtom";
+import {UserAtom} from "@/core/atoms/userAtom";
 
 export default function Dashboard() {
     const location = useLocation();
     const pageURL = location.pathname.split('/')[2];
+    const [token, setToken] = useAtom(TokenAtom);
+    const [, setUser] = useAtom(UserAtom);
+    const keyCloakService = new KeycloakService();
+
+
+    useEffect(() => {
+        const getUserInfo = async () => {
+            const search = window.location.search;
+            const params = new URLSearchParams(search);
+            const code = params.get('code') ?? null;
+            const codeVerifier = params.get('state') ?? null;
+            console.log('Code:', code, 'State:', codeVerifier);
+
+            if (code && codeVerifier) {
+                const tok = await keyCloakService.getUserToken(code, localStorage.getItem(codeVerifier)!)
+                setToken(tok['access_token']);
+                console.log('Token set:', token);
+                const info = await keyCloakService.getUserInfo(tok['access_token']);
+                console.log(info.data);
+                setUser(info.data);
+            }
+        }
+
+        if (!token) {
+            getUserInfo().then(info => console.log(info));
+        }
+    }, [token, keyCloakService]);
+
 
     return (
         <SidebarProvider>

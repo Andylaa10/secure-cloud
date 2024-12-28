@@ -11,32 +11,28 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,} from "@/components/ui/sidebar"
+import {User} from "@/core/models/user.model"
+import {Skeleton} from "./ui/skeleton"
 
-export function NavUser({user}: {
-    user: {
-        name: string
-        email: string
-        avatar: string
-    }
-}) {
+export function NavUser({user}: { user: User | null }) {
     const {isMobile} = useSidebar()
 
     return (
         <SidebarMenu>
             <SidebarMenuItem>
-                <DropdownMenu>
+                {user ? <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size="lg"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
                             <Avatar className="h-8 w-8 rounded-lg">
-                                <AvatarImage src={user.avatar} alt={user.name}/>
+                                <AvatarImage src={'https://github.com/shadcn.png'} alt={user!.preferred_username}/>
                                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-semibold">{user.name}</span>
-                                <span className="truncate text-xs">{user.email}</span>
+                                <span className="truncate font-semibold">{user!.name}</span>
+                                <span className="truncate text-xs">{user!.email}</span>
                             </div>
                             <ChevronsUpDown className="ml-auto size-4"/>
                         </SidebarMenuButton>
@@ -50,12 +46,12 @@ export function NavUser({user}: {
                         <DropdownMenuLabel className="p-0 font-normal">
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Avatar className="h-8 w-8 rounded-lg">
-                                    <AvatarImage src={user.avatar} alt={user.name}/>
+                                    <AvatarImage src={'https://github.com/shadcn.png'} alt={user!.preferred_username}/>
                                     <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">{user.name}</span>
-                                    <span className="truncate text-xs">{user.email}</span>
+                                    <span className="truncate font-semibold">{user!.name}</span>
+                                    <span className="truncate text-xs">{user!.email}</span>
                                 </div>
                             </div>
                         </DropdownMenuLabel>
@@ -87,7 +83,13 @@ export function NavUser({user}: {
                             Log out
                         </DropdownMenuItem>
                     </DropdownMenuContent>
-                </DropdownMenu>
+                </DropdownMenu> : <div className="flex flex-col space-y-3">
+                    <Skeleton className="h-[125px] w-[250px] rounded-xl"/>
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-[250px]"/>
+                        <Skeleton className="h-4 w-[200px]"/>
+                    </div>
+                </div>} {/*** TODO Find skeleton that matches the sidebar ***/}
             </SidebarMenuItem>
         </SidebarMenu>
     )
