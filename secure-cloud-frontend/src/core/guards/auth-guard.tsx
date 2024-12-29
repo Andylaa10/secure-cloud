@@ -1,8 +1,16 @@
-import React, {ReactNode} from "react";
+import React from "react";
 import {Navigate} from "react-router-dom";
+import {useAtom} from "jotai";
+import {UserAtom} from "@/core/atoms/userAtom.ts";
 
-const AuthGuard: React.FunctionComponent<{ children: ReactNode  }> = ({ children }) => {
-    return <Navigate to="/dashboard" />;
+const AuthGuard: React.FunctionComponent<{ children: JSX.Element }> = ({ children }) => {
+    const [user] = useAtom(UserAtom);
+
+    if(user) {
+        return children;
+    } else {
+        return <Navigate to="/sign-up" />;
+    }
 };
 
 export default AuthGuard;

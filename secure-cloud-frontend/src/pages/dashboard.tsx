@@ -9,44 +9,58 @@ import {
     BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
 import {AppSidebar} from "@/components/app-sidebar.tsx";
-import {Outlet, useLocation} from "react-router-dom";
+import {Outlet, useLocation, useNavigate} from "react-router-dom";
 import {ModeToggle} from "@/components/mode-toggle.tsx";
 import {KeycloakService} from "@/core/services/keycloak-service.ts";
 import {useEffect} from "react";
 import {useAtom} from "jotai";
 import {TokenAtom} from "@/core/atoms/tokenAtom";
 import {UserAtom} from "@/core/atoms/userAtom";
+import {useToast} from "@/hooks/use-toast.ts";
+import {Toaster} from "@/components/ui/toaster.tsx";
 
 export default function Dashboard() {
     const location = useLocation();
     const pageURL = location.pathname.split('/')[2];
+    const navigate = useNavigate();
     const [token, setToken] = useAtom(TokenAtom);
     const [, setUser] = useAtom(UserAtom);
     const keyCloakService = new KeycloakService();
-
+    const {toast} = useToast();
 
     useEffect(() => {
-        const getUserInfo = async () => {
-            const search = window.location.search;
-            const params = new URLSearchParams(search);
-            const code = params.get('code') ?? null;
-            const codeVerifier = params.get('state') ?? null;
-            console.log('Code:', code, 'State:', codeVerifier);
+        const handleKeycloakRedirect = async () => {
+            const searchParams = new URLSearchParams(location.search);
+            const code = searchParams.get("code");
+            const state = searchParams.get("state");
 
-            if (code && codeVerifier) {
-                const tok = await keyCloakService.getUserToken(code, localStorage.getItem(codeVerifier)!)
-                setToken(tok['access_token']);
-                console.log('Token set:', token);
-                const info = await keyCloakService.getUserInfo(tok['access_token']);
-                console.log(info.data);
-                setUser(info.data);
+            if (code && state) {
+                try {
+                    const storedVerifier = localStorage.getItem(state);
+                    if (!storedVerifier) throw new Error("Missing PKCE code verifier");
+
+                    const token = await keyCloakService.getUserToken(code, storedVerifier);
+                    console.log(token);
+                    setToken(token["access_token"]);
+
+                    const userInfo = await keyCloakService.getUserInfo(token["access_token"]);
+                    setUser(userInfo.data);
+
+                    navigate(location.pathname, { replace: true });
+                    toast({
+                        title: `Welcome ${userInfo.data['name']}`,
+                    });
+                } catch (error) {
+                    console.error("Keycloak authentication failed:", error);
+                    navigate("/sign-up", { replace: true });
+                }
             }
-        }
+        };
 
         if (!token) {
-            getUserInfo().then(info => console.log(info));
+            handleKeycloakRedirect();
         }
-    }, [token, keyCloakService]);
+    }, [location, token, setToken, setUser, navigate]);
 
 
     return (
@@ -80,6 +94,7 @@ export default function Dashboard() {
                     <Outlet/>
                 </div>
             </SidebarInset>
+            <Toaster />
         </SidebarProvider>
     )
 }

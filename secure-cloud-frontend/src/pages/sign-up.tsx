@@ -8,8 +8,11 @@ import {Input} from "@/components/ui/input"
 import {ModeToggle} from "@/components/mode-toggle"
 import {KeycloakService} from "@/core/services/keycloak-service"
 import {RegisterDTO} from "@/core/dtos/registerDTO.ts";
+import {useToast} from "@/hooks/use-toast.ts";
+import {Toaster} from "@/components/ui/toaster.tsx";
 
 export default function SignUp() {
+    const { toast } = useToast();
     const keyCloakService = new KeycloakService();
 
     const FormSchema = z.object({
@@ -39,7 +42,15 @@ export default function SignUp() {
             firstName: data.firstname,
             lastName: data.lastname,
         }
-        await keyCloakService.register(dto)
+        const user = await keyCloakService.register(dto);
+
+        if (user) {
+            toast({
+                title: "Registration was successful",
+            });
+            document.location.href = keyCloakService.login();
+        }
+
     }
 
     return (
@@ -121,6 +132,7 @@ export default function SignUp() {
             <div className="absolute top-2 right-2">
                 <ModeToggle/>
             </div>
+            <Toaster />
         </div>
     );
 }

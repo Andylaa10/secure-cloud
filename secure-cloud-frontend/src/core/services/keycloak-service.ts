@@ -163,4 +163,15 @@ export class KeycloakService {
         return result;
     }
 
+    async logout(userId: string){
+        const token = await this.getToken();
+        if (token) {
+            return await this.api.post(`admin/realms/master/users/${userId}/logout`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+        }
+    }
+
 }
