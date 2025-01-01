@@ -1,6 +1,6 @@
 import {zodResolver} from "@hookform/resolvers/zod"
 import {useForm} from "react-hook-form"
-import {z} from "zod"
+import {effect, z} from "zod"
 
 import {Button} from "@/components/ui/button"
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage,} from "@/components/ui/form"
@@ -12,10 +12,13 @@ import {useToast} from "@/hooks/use-toast.ts";
 import {Toaster} from "@/components/ui/toaster.tsx";
 import {Card, CardContent, CardHeader} from "@/components/ui/card.tsx";
 import {PasswordInput} from "@/components/ui/password-input.tsx";
+import {useEffect} from "react";
+import {CryptoService} from "@/core/services/crypto-service.ts";
 
 export default function SignUp() {
     const {toast} = useToast();
     const keyCloakService = new KeycloakService();
+    const cryptoService = new CryptoService();
 
     const FormSchema = z.object({
         email: z.string().email("Please provide an email"),
