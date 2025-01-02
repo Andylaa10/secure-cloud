@@ -9,6 +9,8 @@ services:
     build:
       context: .
       dockerfile: ./secure-cloud-backend/secure-cloud-api/Dockerfile
+    env_file:
+      - secure-cloud-backend/.env
 
   #Fronted
   frontend:
@@ -21,6 +23,8 @@ services:
       - ./secure-cloud-frontend/src:/app/src:delegated
     networks:
       - local_network
+    env_file:
+      - secure-cloud-frontend/.env
 
   #Keycloak
   keycloak:

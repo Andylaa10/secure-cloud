@@ -3,7 +3,9 @@ import {RegisterDTO} from "@/core/dtos/registerDTO.ts";
 import {User} from '../models/user.model';
 
 export class KeycloakService {
-    //realmName = process.env.REACT_APP_KC_REALM_NAME;
+    clientSecret?: string = import.meta.env.VITE_CLIENT_SECRET;
+    clientId?: string = import.meta.env.VITE_CLIENT_ID;
+
 
     // https://stackoverflow.com/questions/52103155/reading-an-environment-variable-in-react-which-was-set-by-docker
     // https://steve-mu.medium.com/create-new-user-in-keycloak-with-admin-restful-api-e6e868b836b4
@@ -20,8 +22,8 @@ export class KeycloakService {
             code: code,
             redirect_uri: 'http://localhost:8083/dashboard/home',
             code_verifier: code_verifier,
-            client_id: 'secure-cloud',
-            client_secret: 'fw5jr2ZnFRbnFt0XleKGXUEh57lrIlte',
+            client_id: this.clientId!,
+            client_secret: this.clientSecret!,
         };
 
         const response = await fetch('http://localhost:8080/realms/master/protocol/openid-connect/token', {
@@ -35,8 +37,8 @@ export class KeycloakService {
     async getToken(): Promise<string | null> {
         const url = 'realms/master/protocol/openid-connect/token';
         const data = new URLSearchParams();
-        data.append('client_id', 'secure-cloud');
-        data.append('client_secret', 'fw5jr2ZnFRbnFt0XleKGXUEh57lrIlte');
+        data.append('client_id', this.clientId!);
+        data.append('client_secret', this.clientSecret!);
         data.append('grant_type', 'client_credentials');
 
         try {
@@ -100,7 +102,7 @@ export class KeycloakService {
         const code = this.generateRandomString();
         localStorage.setItem(state, code);
         const parameters = {
-            client_id: 'secure-cloud',
+            client_id: this.clientId!,
             scope: 'openid email phone address profile',
             response_type: 'code',
             redirect_uri: 'http://localhost:8083/dashboard/home',
