@@ -1,33 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\andyl\\OneDrive\\Desktop\\web development\\secure-cloud\\secure-cloud-backend\\secure-cloud-api\\secure-cloud-api.csproj": {}
+    "/Users/dkmarive/Documents/School/Exam/secure-cloud/secure-cloud-backend/secure-cloud-api/secure-cloud-api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\andyl\\OneDrive\\Desktop\\web development\\secure-cloud\\secure-cloud-backend\\secure-cloud-api\\secure-cloud-api.csproj": {
+    "/Users/dkmarive/Documents/School/Exam/secure-cloud/secure-cloud-backend/secure-cloud-api/secure-cloud-api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\andyl\\OneDrive\\Desktop\\web development\\secure-cloud\\secure-cloud-backend\\secure-cloud-api\\secure-cloud-api.csproj",
+        "projectUniqueName": "/Users/dkmarive/Documents/School/Exam/secure-cloud/secure-cloud-backend/secure-cloud-api/secure-cloud-api.csproj",
         "projectName": "secure-cloud-api",
-        "projectPath": "C:\\Users\\andyl\\OneDrive\\Desktop\\web development\\secure-cloud\\secure-cloud-backend\\secure-cloud-api\\secure-cloud-api.csproj",
-        "packagesPath": "C:\\Users\\andyl\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\andyl\\OneDrive\\Desktop\\web development\\secure-cloud\\secure-cloud-backend\\secure-cloud-api\\obj\\",
+        "projectPath": "/Users/dkmarive/Documents/School/Exam/secure-cloud/secure-cloud-backend/secure-cloud-api/secure-cloud-api.csproj",
+        "packagesPath": "/Users/dkmarive/.nuget/packages/",
+        "outputPath": "/Users/dkmarive/Documents/School/Exam/secure-cloud/secure-cloud-backend/secure-cloud-api/obj/",
         "projectStyle": "PackageReference",
-        "UsingMicrosoftNETSdk": false,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\andyl\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/dkmarive/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -40,17 +32,20 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "all"
         }
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            },
+            "DotNetEnv": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.1, )"
@@ -107,7 +102,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
