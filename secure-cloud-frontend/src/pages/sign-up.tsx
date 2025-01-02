@@ -12,7 +12,6 @@ import {useToast} from "@/hooks/use-toast.ts";
 import {Toaster} from "@/components/ui/toaster.tsx";
 import {Card, CardContent, CardHeader} from "@/components/ui/card.tsx";
 import {PasswordInput} from "@/components/ui/password-input.tsx";
-import {useEffect} from "react";
 import {CryptoService} from "@/core/services/crypto-service.ts";
 
 export default function SignUp() {
@@ -48,16 +47,23 @@ export default function SignUp() {
     })
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
+        const {publicKey, privateKey } = await cryptoService.generateKeyPair();
         const dto: RegisterDTO = {
             email: data.email,
             password: data.password,
             username: data.username,
             firstName: data.firstname,
             lastName: data.lastname,
+            publicKey: publicKey,
         }
+
+        console.log(privateKey)
+        console.log(publicKey)
+
         const user = await keyCloakService.register(dto);
 
         if (user) {
+            console.log(user)
             toast({
                 title: "Registration was successful",
             });

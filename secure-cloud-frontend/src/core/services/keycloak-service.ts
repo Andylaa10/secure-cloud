@@ -69,7 +69,7 @@ export class KeycloakService {
             emailVerified: false,
             enabled: true,
             requiredActions: [],
-            groups: []
+            groups: [],
         }
 
         // Create user
@@ -86,6 +86,7 @@ export class KeycloakService {
             if (newUser) {
                 await this.setPassword(token, newUser[0]['id'], dto.password);
 
+                await this.updateUserPublicKey(token, newUser[0]['id'], dto);
                 return newUser;
             }
             return null;
@@ -173,5 +174,35 @@ export class KeycloakService {
             });
         }
     }
+
+    /**
+     * Update the update with existing fields and private key
+     * @param accessToken
+     * @param userId
+     * @param dto
+     */
+    async updateUserPublicKey(accessToken: string, userId: string, dto: RegisterDTO) {
+        return await this.api.put(
+            `admin/realms/master/users/${userId}`,
+            {
+                email: dto.email,
+                username: dto.username,
+                firstName: dto.firstName,
+                lastName: dto.lastName,
+                enabled: true,
+                attributes: {
+                    publicKey: dto.publicKey,
+                },
+                requiredActions: [],
+                groups: [],
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            }
+        );
+    }
+
 
 }
