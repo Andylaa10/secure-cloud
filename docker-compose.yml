@@ -11,6 +11,11 @@ services:
       dockerfile: ./secure-cloud-backend/secure-cloud-api/Dockerfile
     env_file:
       - secure-cloud-backend/.env
+    networks:
+      - local_network
+    depends_on:
+      secureclouddb:
+        condition: service_started
 
   #Fronted
   frontend:
@@ -35,7 +40,25 @@ services:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
     command: start-dev
+    
+  # Database  
+  secureclouddb:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=SecureCloudDB
+    ports:
+      - '5432:5432'
+    volumes:
+      - secureclouddb_data:/data
+    networks:
+      - local_network
 
 networks:
   local_network:
     driver: bridge
+
+volumes:
+  secureclouddb_data:
