@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using secure_cloud_api.Core.Helpers;
 using secure_cloud_api.Core.Repositories.Interfaces;
 using File = secure_cloud_api.Core.Entities.File;
@@ -14,29 +15,36 @@ public class FileRepository : IFileRepository
         _context = context;
     }
 
-    public Task<File> GetAllFiles(string id)
+    public async Task<IEnumerable<File>> GetAllFiles()
     {
-        throw new NotImplementedException();
+        return await _context.Files.ToListAsync();
     }
 
-    public Task<File> GetFileById(string id)
+    public async Task<File> GetFileById(Guid id)
     {
-        throw new NotImplementedException();
+        var file = await _context.Files.FirstOrDefaultAsync(file => file.Id == id);
+        return file ?? throw new FileNotFoundException($"No file found with this guid: {id}");
     }
 
-    public Task<File> GetSharedFiles(string id)
+    public Task<File> GetSharedFiles(Guid id)
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException(); // TODO 
     }
 
-    public Task<File> AddFile(File file)
+    public async Task<File> AddFile(File file)
     {
-        throw new NotImplementedException();
+        await _context.Files.AddAsync(file);
+        await _context.SaveChangesAsync();
+
+        return file;
     }
 
-    public Task<File> DeleteFile(string id)
+    public async Task<File> DeleteFile(Guid id)
     {
-        throw new NotImplementedException();
+        var file = await GetFileById(id);
+        _context.Files.Remove(file);
+        await _context.SaveChangesAsync();
+        return file;
     }
 
     public async Task RebuildDatabase()

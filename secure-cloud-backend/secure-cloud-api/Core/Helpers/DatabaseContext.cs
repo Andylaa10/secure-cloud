@@ -2,6 +2,7 @@ using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using File = secure_cloud_api.Core.Entities.File;
 
+
 namespace secure_cloud_api.Core.Helpers;
 
 public class DatabaseContext : DbContext
@@ -25,10 +26,7 @@ public class DatabaseContext : DbContext
 
         //Auto generate id
         modelBuilder.Entity<File>().Property(u => u.Id).ValueGeneratedOnAdd();
-
-        //Constraints 
-        modelBuilder.Entity<File>().HasIndex(u => u.Content).IsUnique();
-
+        
         #endregion
     }
     

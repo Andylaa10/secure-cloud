@@ -4,10 +4,10 @@ namespace secure_cloud_api.Core.Services.Interfaces;
 
 public interface IFileService
 {
-    public Task<IEnumerable<GetFileDto>> GetAllFiles(string id); //TODO
-    public Task<GetFileDto> GetFileById(string id); //TODO
-    public Task<IEnumerable<GetFileDto>> GetSharedFiles(string id); //TODO
-    public Task<CreateFileDto> AddFile(CreateFileDto file);
-    public Task<GetFileDto> DeleteFile(string id);
+    public Task<IEnumerable<GetFileDto>> GetAllFiles(); //TODO
+    public Task<GetFileDto> GetFileById(Guid id); //TODO
+    public Task<IEnumerable<GetFileDto>> GetSharedFiles(Guid id); //TODO
+    public Task<GetFileDto> AddFile(CreateFileDto dto);
+    public Task<GetFileDto> DeleteFile(Guid id);
     public Task RebuildDatabase();
 }
