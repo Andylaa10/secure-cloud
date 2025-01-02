@@ -8,4 +8,5 @@ export interface User {
     sub: string;
     avatar: string;
     email: string;
+    publicKey: string;
 }

@@ -8013,7 +8013,6 @@
       "packagesPath": "C:\\Users\\andyl\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\andyl\\OneDrive\\Desktop\\web development\\secure-cloud\\secure-cloud-backend\\secure-cloud-api\\obj\\",
       "projectStyle": "PackageReference",
-      "UsingMicrosoftNETSdk": false,
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
@@ -8045,7 +8044,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "all"
-      }
+      },
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net8.0": {

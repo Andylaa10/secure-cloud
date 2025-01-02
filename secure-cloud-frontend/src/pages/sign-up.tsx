@@ -1,6 +1,6 @@
 import {zodResolver} from "@hookform/resolvers/zod"
 import {useForm} from "react-hook-form"
-import {effect, z} from "zod"
+import {z} from "zod"
 
 import {Button} from "@/components/ui/button"
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage,} from "@/components/ui/form"
@@ -12,12 +12,10 @@ import {useToast} from "@/hooks/use-toast.ts";
 import {Toaster} from "@/components/ui/toaster.tsx";
 import {Card, CardContent, CardHeader} from "@/components/ui/card.tsx";
 import {PasswordInput} from "@/components/ui/password-input.tsx";
-import {CryptoService} from "@/core/services/crypto-service.ts";
 
 export default function SignUp() {
     const {toast} = useToast();
     const keyCloakService = new KeycloakService();
-    const cryptoService = new CryptoService();
 
     const FormSchema = z.object({
         email: z.string().email("Please provide an email"),
@@ -28,9 +26,6 @@ export default function SignUp() {
         lastname: z.string().min(1, "Lastname is required")
     }).refine((data) => data.password === data.repeatPassword, {
         path: ["repeatPassword"],
-        message: "Passwords don't match",
-    }).refine((data) => data.repeatPassword === data.password, {
-        path: ["password"],
         message: "Passwords don't match",
     });
 
@@ -47,18 +42,13 @@ export default function SignUp() {
     })
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-        const {publicKey, privateKey } = await cryptoService.generateKeyPair();
         const dto: RegisterDTO = {
             email: data.email,
             password: data.password,
             username: data.username,
             firstName: data.firstname,
             lastName: data.lastname,
-            publicKey: publicKey,
         }
-
-        console.log(privateKey)
-        console.log(publicKey)
 
         const user = await keyCloakService.register(dto);
 

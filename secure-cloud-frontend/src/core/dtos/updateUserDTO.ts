@@ -1,7 +1,7 @@
-export interface RegisterDTO {
+export interface UpdateUserDTO {
     username: string;
     email: string;
     firstName: string;
     lastName: string;
-    password: string;
+    publicKey: string;
 }

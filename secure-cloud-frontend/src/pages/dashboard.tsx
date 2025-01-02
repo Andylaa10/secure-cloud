@@ -28,6 +28,7 @@ export default function Dashboard() {
     const keyCloakService = new KeycloakService();
     const {toast} = useToast();
 
+
     useEffect(() => {
         const handleKeycloakRedirect = async () => {
             const searchParams = new URLSearchParams(location.search);
@@ -47,6 +48,7 @@ export default function Dashboard() {
                     setUser(userInfo.data);
 
                     navigate(location.pathname, { replace: true });
+
                     toast({
                         title: `Welcome ${userInfo.data['name']}`,
                     });
@@ -61,7 +63,6 @@ export default function Dashboard() {
             handleKeycloakRedirect();
         }
     }, [location, token, setToken, setUser, navigate]);
-
 
     return (
         <SidebarProvider>

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {RegisterDTO} from "@/core/dtos/registerDTO.ts";
 import {User} from '../models/user.model';
+import {UpdateUserDTO} from "@/core/dtos/updateUserDTO.ts";
 
 export class KeycloakService {
     clientSecret?: string = import.meta.env.VITE_CLIENT_SECRET;
@@ -88,7 +89,6 @@ export class KeycloakService {
             if (newUser) {
                 await this.setPassword(token, newUser[0]['id'], dto.password);
 
-                await this.updateUserPublicKey(token, newUser[0]['id'], dto);
                 return newUser;
             }
             return null;
@@ -183,7 +183,7 @@ export class KeycloakService {
      * @param userId
      * @param dto
      */
-    async updateUserPublicKey(accessToken: string, userId: string, dto: RegisterDTO) {
+    async updateUserPublicKey(accessToken: string, userId: string, dto: UpdateUserDTO) {
         return await this.api.put(
             `admin/realms/master/users/${userId}`,
             {
