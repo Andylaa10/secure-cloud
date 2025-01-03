@@ -21,7 +21,6 @@ public class KeycloakTokenValidationMiddleware
     {
         try
         {
-            // Extract the Authorization header from the request
             var authorizationHeader = context.Request.Headers["Authorization"].ToString();
 
             if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
@@ -49,11 +48,8 @@ public class KeycloakTokenValidationMiddleware
 
             try
             {
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
-                context.Items["TokenIsValid"] = true;  // Store validation result in HttpContext
-
-                // Optionally, you can store other principal data, such as claims
-                context.Items["Principal"] = principal;
+                var principal = await tokenHandler.ValidateTokenAsync(token, validationParameters);
+                context.Items["TokenIsValid"] = principal.IsValid;
             }
             catch (SecurityTokenException)
             {
@@ -70,7 +66,6 @@ public class KeycloakTokenValidationMiddleware
             return;
         }
 
-        // Call the next middleware in the pipeline
         await _next(context);
     }
 
