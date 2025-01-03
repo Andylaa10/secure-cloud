@@ -13,11 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("secure-cloud-api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-<<<<<<< HEAD
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e17a64ee8b58afcfb906bb1e8b3b75f05ad49b32")]
-=======
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c1cb2ca736a9cba21660cfddacdba5bf99844649")]
->>>>>>> ceebc5f325c45d3f03611710d61048ae2970d847
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7aa325a3cca67c74ede6f3be4d5f5195ecf5e63b")]
 [assembly: System.Reflection.AssemblyProductAttribute("secure-cloud-api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("secure-cloud-api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

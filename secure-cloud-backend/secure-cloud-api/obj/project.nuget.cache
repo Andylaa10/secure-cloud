@@ -1,10 +1,6 @@
 {
   "version": 2,
-<<<<<<< HEAD
-  "dgSpecHash": "78EKl7gGzbE=",
-=======
   "dgSpecHash": "sinugmxqb8Q=",
->>>>>>> ceebc5f325c45d3f03611710d61048ae2970d847
   "success": true,
   "projectFilePath": "/Users/dkmarive/Documents/School/Exam/secure-cloud/secure-cloud-backend/secure-cloud-api/secure-cloud-api.csproj",
   "expectedPackageFiles": [
@@ -140,5 +136,12 @@
     "/Users/dkmarive/.nuget/packages/system.xml.readerwriter/4.3.0/system.xml.readerwriter.4.3.0.nupkg.sha512",
     "/Users/dkmarive/.nuget/packages/system.xml.xdocument/4.3.0/system.xml.xdocument.4.3.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problem reading the cache file /Users/dkmarive/Documents/School/Exam/secure-cloud/secure-cloud-backend/secure-cloud-api/obj/project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+    }
+  ]
 }
