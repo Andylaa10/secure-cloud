@@ -25,8 +25,10 @@ public class DatabaseContext : DbContext
         #region Setup DB
 
         //Auto generate id
-        modelBuilder.Entity<File>().Property(u => u.Id).ValueGeneratedOnAdd();
-        
+        modelBuilder.Entity<File>().Property(f => f.Id).ValueGeneratedOnAdd();
+        //Key has to be unique
+        modelBuilder.Entity<File>().HasIndex(f => f.Key).IsUnique();
+
         #endregion
     }
     

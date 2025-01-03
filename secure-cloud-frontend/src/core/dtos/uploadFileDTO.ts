@@ -3,4 +3,5 @@ export interface UploadFileDTO {
   content: string;
   contentType: string;
   ownerId: string;
+  key: string;
 }

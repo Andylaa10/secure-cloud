@@ -39,8 +39,9 @@ export default function Home() {
   const [showPassword, setShowPassword] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [contentType, setContentType] = useState<string | undefined>('');
-  const fileInputRef = useRef<any | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const fileService = new FileService();
+  //const [searchUser] = useAtom(SearchUserAtom);
 
 
   useEffect(() => {
@@ -48,18 +49,20 @@ export default function Home() {
       if (user) {
         const test = await keyCloakService.getUserByUsername(user.preferred_username, token);
         if (!test[0]['attributes']) {
-          const {publicKey, privateKey} = await cryptoService.generateKeyPair();
+          const {publicKeyPem, privateKeyPem} = await cryptoService.generateKeyPair();
+
+          console.log(publicKeyPem, "Marsaduasdusadusadau")
 
           const dto: UpdateUserDTO = {
             email: user.email,
             username: user.preferred_username,
             firstName: user.given_name,
             lastName: user.family_name,
-            publicKey: publicKey,
+            publicKey: publicKeyPem,
           }
 
           await keyCloakService.updateUserPublicKey(token, test[0].id, dto);
-          setPk(privateKey);
+          setPk(privateKeyPem);
           setIsDialogOpen(true);
         }
       }
@@ -82,27 +85,63 @@ export default function Home() {
     resolver: zodResolver(FormSchema),
   });
 
+  // Convert Uint8Array to base64
+  function arrayBufferToBase64(buffer: ArrayBuffer): string {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    bytes.forEach((b) => (binary += String.fromCharCode(b)));
+    return btoa(binary);
+  }
 
-  async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>, publicKey?: string) {
     const file = event.target.files?.[0];
 
-    if (file) {
-      setSelectedFile(file);
-      setContentType(file.name.split(".").pop())
+    if (!file) return;
 
-      if (user?.sub === undefined || contentType === undefined) return;
+    // Step 1: Read the file data
+    const fileData = await file.arrayBuffer();
+    const fileDataString = new TextDecoder().decode(fileData);
 
-      try {
-        await fileService.uploadFile({
-          name: file.name,
-          content: file.name,
-          contentType: contentType,
-          ownerId: user?.sub,
-        })
-      } catch (error) {
-        console.error(error);
-      }
+    setSelectedFile(file);
+    setContentType(file.name.split(".").pop());
+
+    if (user?.sub === undefined || contentType === undefined) return;
+
+    try {
+      // Step 2: Generate AES key
+      const aesKey = cryptoService.generateAesKey();
+
+      // Step 3: Encrypt the file with AES key
+      const encryptedFile = await cryptoService.encryptWithAes(await aesKey, fileDataString);
+
+      // Step 4: Encrypt the AES key with the public key from the parameters
+      const encryptedAesKey = await cryptoService.encryptAesKey( //TODO Fix how to get the public key from the parameters
+          "-----BEGIN PUBLIC KEY-----\n" +
+          "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr8EKOZF6SxoZ0EAZMujE\n" +
+          "ih75u+UaEQcP8KMAddyXFmoEfPigR9FbhuMqy0X6Srdkcjh60TjbWRVYtZvqy/Xp\n" +
+          "mvvyhOOfcyoF7jMKw+j5lDaqhNBImvHNq5aAlvsz3ofoZHc6a2o7366WEnF6uiib\n" +
+          "qsy1lSzhGRvWReuiTOObAy6rH+lnJ2szgngQcl5BKKHcEjchaX4Zk/+jQov9VBsn\n" +
+          "GtRiNaMklShiIIb1ywJDYwpjN/nyrUNQ8KRNz2NQDo+4QyDYwLcpgDxVc6gh9TGB\n" +
+          "2dC10mthO+H0Pz7GooiaWjB5P9mW1dimy9itT5JkZ/Wfy9wckC0HIBvpXQ/1iLkg\n" +
+          "CwIDAQAB\n" +
+          "-----END PUBLIC KEY-----"
+          //publicKey!
+          , await aesKey); //TODO Remove !!!!
+
+      const base64Content = arrayBufferToBase64(encryptedFile);
+
+      await fileService.uploadFile({
+        name: file.name,
+        content: base64Content,
+        contentType: ".png",
+        key: encryptedAesKey,
+        ownerId: user?.sub,
+      })
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
+
     setIsUploadDialogOpen(false);
     setSelectedFile(null);
   }

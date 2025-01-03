@@ -6,8 +6,9 @@ public class File
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
+    public Byte[] Content { get; set; } 
     public string ContentType { get; set; }
-    public string Content { get; set; } //TODO Byte[]
     public string OwnerId { get; set; }
+    public string Key { get; set; }
     public DateTime CreatedAt { get; set; }
 }

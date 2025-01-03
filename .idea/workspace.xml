@@ -5,7 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="372d487a-6c88-4621-afee-2dd55da4aef9" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/secure-cloud-frontend/src/core/atoms/searchUserAtom.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-cloud-backend/secure-cloud-api/Core/Entities/File.cs" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-backend/secure-cloud-api/Core/Entities/File.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-cloud-backend/secure-cloud-api/Core/Helpers/DatabaseContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-backend/secure-cloud-api/Core/Helpers/DatabaseContext.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-cloud-backend/secure-cloud-api/Core/Services/DTOs/CreateFileDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-backend/secure-cloud-api/Core/Services/DTOs/CreateFileDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-cloud-backend/secure-cloud-api/Core/Services/DTOs/GetFileDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-backend/secure-cloud-api/Core/Services/DTOs/GetFileDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-cloud-backend/secure-cloud-api/Core/Services/FileService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-backend/secure-cloud-api/Core/Services/FileService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-cloud-frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-cloud-frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-cloud-frontend/src/core/dtos/uploadFileDTO.ts" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-frontend/src/core/dtos/uploadFileDTO.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-cloud-frontend/src/core/services/crypto-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-frontend/src/core/services/crypto-service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/secure-cloud-frontend/src/pages/home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-frontend/src/pages/home.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -84,7 +94,8 @@
       <updated>1735809795530</updated>
       <workItem from="1735809796588" duration="3186000" />
       <workItem from="1735814040893" duration="1788000" />
-      <workItem from="1735896352305" duration="8718000" />
+      <workItem from="1735896352305" duration="11152000" />
+      <workItem from="1735909676724" duration="7362000" />
     </task>
     <servers />
   </component>

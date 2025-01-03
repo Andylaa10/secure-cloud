@@ -1,44 +1,59 @@
+import * as forge from 'node-forge';
+
 export class CryptoService {
 
-    /**
-     * This generates a key pair used for asymmetric encryption
-     * The private key needs to be saved by the user in a secure place
-     * The public key needs be saved and updated on the KeyCloak user
-     */
-    async generateKeyPair(){
-        const keyPair = await window.crypto.subtle.generateKey({
-                name: "RSA-OAEP",
-                modulusLength: 2048, // Key size
-                publicExponent: new Uint8Array([1, 0, 1]),
-                hash: { name: "SHA-256" },
-            },
-            true,
-            ["encrypt", "decrypt"]);
+  async generateKeyPair() {
+    const rsaKeyPair = forge.pki.rsa.generateKeyPair({bits: 2048});
+    const publicKeyPem = forge.pki.publicKeyToPem(rsaKeyPair.publicKey);
+    const privateKeyPem = forge.pki.privateKeyToPem(rsaKeyPair.privateKey);
 
-        // Export the public and private keys
-        const exportedPublicKey = await window.crypto.subtle.exportKey(
-            "spki", // Format for public key (Subject Public Key Info)
-            keyPair.publicKey
-        );
+    return {publicKeyPem, privateKeyPem}
+  }
 
-        const exportedPrivateKey = await window.crypto.subtle.exportKey(
-            "pkcs8", // Format for private key (Private Key Info)
-            keyPair.privateKey
-        );
+  generateAesKey = async () => {
+    const aesSalt = forge.random.getBytesSync(16);
+    const keyPassPhrase = forge.random.getBytesSync(16);
+    const aesKey = forge.pkcs5.pbkdf2(
+        keyPassPhrase,
+        aesSalt,
+        1000,
+        16
+    );
 
-        // Convert ArrayBuffer to base64
-        const publicKey = this.arrayBufferToBase64(exportedPublicKey);
-        const privateKey = this.arrayBufferToBase64(exportedPrivateKey);
+    return aesKey;
+  }
 
-        return {publicKey, privateKey}
+  // TODO For decrypting
+  // const decryptedAesKey = rsaKeyPair.privateKey.decrypt(forge.util.decode64(encryptedAesKey) 'RSA-OAEP');
+
+  encryptAesKey = async (receivedpublicKeyPem: string, aesKey: string) => {
+    try{
+      const publicKey = forge.pki.publicKeyFromPem(receivedpublicKeyPem);
+      const encryptedAesKey = publicKey.encrypt(aesKey, 'RSA-OAEP');
+      return forge.util.encode64(encryptedAesKey);
+    }catch (error){
+      console.error('Error encrypting AES key:', error);
+      throw error;
     }
+  }
 
-    private arrayBufferToBase64 = (buffer: ArrayBuffer) => {
-        let binary = '';
-        const bytes = new Uint8Array(buffer);
-        for (let i = 0; i < bytes.length; i++) {
-            binary += String.fromCharCode(bytes[i]);
-        }
-        return window.btoa(binary);
-    };
+
+  encryptWithAes = async (aesKey: string, fileData: string) => {
+    const iv = forge.random.getBytesSync(16);
+    const cipher = forge.cipher.createCipher('AES-CBC', aesKey);
+    cipher.start({iv: iv});
+    cipher.update(forge.util.createBuffer(fileData));
+    cipher.finish();
+
+    // Convert IV and encrypted data to Uint8Array directly
+    const ivBytes = new Uint8Array(iv.split('').map((c) => c.charCodeAt(0)));
+    const encryptedBytes = new Uint8Array(cipher.output.getBytes().split('').map((c) => c.charCodeAt(0)));
+
+    // Combine IV and encrypted data into a single Uint8Array
+    const resultBytes = new Uint8Array(ivBytes.length + encryptedBytes.length);
+    resultBytes.set(ivBytes, 0); // Copy IV to the beginning
+    resultBytes.set(encryptedBytes, ivBytes.length); // Append encrypted data after IV
+
+    return resultBytes;
+  }
 }
