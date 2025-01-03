@@ -40,6 +40,8 @@ services:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
     command: start-dev
+    networks:
+      - local_network
     
   # Database  
   secureclouddb:

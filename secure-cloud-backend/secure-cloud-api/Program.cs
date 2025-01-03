@@ -1,4 +1,5 @@
 using secure_cloud_api.Configs;
+using secure_cloud_api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseAuthorization();
+// Check if token is valid
+app.UseMiddleware<KeycloakTokenValidationMiddleware>();
 
 app.MapControllers();
 
