@@ -90,7 +90,6 @@ export default function Home() {
       setSelectedFile(file);
       setContentType(file.name.split(".").pop())
 
-
       if (user?.sub === undefined || contentType === undefined) return;
 
       try {
@@ -105,6 +104,7 @@ export default function Home() {
       }
     }
     setIsUploadDialogOpen(false);
+    setSelectedFile(null);
   }
 
   const triggerFileInput = () => {
