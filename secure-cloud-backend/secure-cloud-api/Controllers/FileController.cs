@@ -16,12 +16,12 @@ public class FileController : ControllerBase
     }
 
     [HttpGet]
-    [Route("Files")]
-    public async Task<IActionResult> GetAllFiles()
+    [Route("getByOwnerId/{ownerId}")]
+    public async Task<IActionResult> GetAllFilesByOwnerId([FromRoute]Guid ownerId)
     {
         try
         {
-            return Ok(await _fileService.GetAllFiles());
+            return Ok(await _fileService.GetAllFilesByOwnerId(ownerId));
         }
         catch (Exception e)
         {
@@ -30,8 +30,8 @@ public class FileController : ControllerBase
     }
     
     [HttpGet]
-    [Route("Files/{id}")]
-    public async Task<IActionResult> GetFileById(Guid id)
+    [Route("getFile/{id}")]
+    public async Task<IActionResult> GetFileById([FromRoute]Guid id)
     {
         try
         {
@@ -52,7 +52,7 @@ public class FileController : ControllerBase
 
 
     [HttpPost]
-    [Route("Upload")]
+    [Route("uploadFile")]
     public async Task<IActionResult> AddFile([FromBody] CreateFileDto dto)
     {
         try
@@ -67,7 +67,7 @@ public class FileController : ControllerBase
     }
     
     [HttpDelete]
-    [Route("Delete/{id}")]
+    [Route("deleteFile/{id}")]
     public async Task<IActionResult> DeleteFile([FromRoute] string id)
     {
         try

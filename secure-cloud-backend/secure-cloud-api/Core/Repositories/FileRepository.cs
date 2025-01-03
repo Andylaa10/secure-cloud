@@ -7,17 +7,18 @@ namespace secure_cloud_api.Core.Repositories;
 
 public class FileRepository : IFileRepository
 {
-    
     private readonly DatabaseContext _context;
-    
+
     public FileRepository(DatabaseContext context)
     {
         _context = context;
     }
 
-    public async Task<IEnumerable<File>> GetAllFiles()
+    public async Task<IEnumerable<File>> GetAllFilesByOwnerId(Guid ownerId)
     {
-        return await _context.Files.ToListAsync();
+        return await _context.Files
+            .Where(file => file.OwnerId == ownerId.ToString())
+            .ToListAsync();
     }
 
     public async Task<File> GetFileById(Guid id)

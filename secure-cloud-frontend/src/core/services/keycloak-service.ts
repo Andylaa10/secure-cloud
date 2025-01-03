@@ -7,9 +7,6 @@ export class KeycloakService {
     clientSecret?: string = import.meta.env.VITE_CLIENT_SECRET;
     clientId?: string = import.meta.env.VITE_CLIENT_ID;
 
-
-    // https://stackoverflow.com/questions/52103155/reading-an-environment-variable-in-react-which-was-set-by-docker
-    // https://steve-mu.medium.com/create-new-user-in-keycloak-with-admin-restful-api-e6e868b836b4
     api = axios.create({
         baseURL: `http://localhost:8080/`
     });

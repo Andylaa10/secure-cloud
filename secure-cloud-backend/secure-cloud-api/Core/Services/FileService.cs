@@ -17,11 +17,11 @@ public class FileService : IFileService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<GetFileDto>> GetAllFiles()
+    public async Task<IEnumerable<GetFileDto>> GetAllFilesByOwnerId(Guid ownerId)
     {
         try
         {
-            var files = await _fileRepository.GetAllFiles();
+            var files = await _fileRepository.GetAllFilesByOwnerId(ownerId);
             return _mapper.Map<IEnumerable<GetFileDto>>(files);
         }
         catch (Exception e)

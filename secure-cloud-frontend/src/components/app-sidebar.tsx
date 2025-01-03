@@ -1,4 +1,4 @@
-import {File, House, Users} from "lucide-react"
+import {File, Users} from "lucide-react"
 import {Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, useSidebar,} from "@/components/ui/sidebar"
 import React from "react";
 import {NavUser} from "@/components/nav-user.tsx";
@@ -10,15 +10,10 @@ import {useAtom} from "jotai";
 const data = {
     navMain: [
         {
-            title: "Home",
+            title: "My Files",
             url: "home",
-            icon: House,
-            isActive: true,
-        },
-        {
-            title: "My files",
-            url: "files",
             icon: File,
+            isActive: true,
         },
         {
             title: "Shared",
