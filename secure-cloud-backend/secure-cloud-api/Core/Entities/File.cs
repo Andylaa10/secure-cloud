@@ -1,4 +1,4 @@
-using System.Reflection.Metadata;
+using System;
 
 namespace secure_cloud_api.Core.Entities;
 
@@ -9,6 +9,7 @@ public class File
     public Byte[] Content { get; set; } 
     public string ContentType { get; set; }
     public string OwnerId { get; set; }
+    public string OwnerDisplayName { get; set; }
     public string Key { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow; 
 }

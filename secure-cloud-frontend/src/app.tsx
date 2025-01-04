@@ -4,7 +4,6 @@ import Dashboard from "./pages/dashboard.tsx";
 import NotFound from "@/pages/not-found.tsx";
 import SignUp from "@/pages/sign-up.tsx";
 import Home from "@/pages/home.tsx";
-import Files from "@/pages/files.tsx";
 import Shared from "@/pages/shared.tsx";
 import { ThemeProvider } from "@/components/theme-provider.tsx";
 import AuthGuard from "@/core/guards/auth-guard.tsx";
@@ -32,14 +31,6 @@ function App() {
                         element={
                             <AuthGuard>
                                 <Home />
-                            </AuthGuard>
-                        }
-                    />
-                    <Route
-                        path="files"
-                        element={
-                            <AuthGuard>
-                                <Files />
                             </AuthGuard>
                         }
                     />

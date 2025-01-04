@@ -11,10 +11,10 @@ import {
   AlertDialogTitle
 } from "@/components/ui/alert-dialog.tsx";
 import {useAtom} from "jotai";
-import {UserAtom} from "@/core/atoms/userAtom.ts";
+import {UserAtom} from "@/core/atoms/user-atom.ts";
 import {CryptoService} from "@/core/services/crypto-service.ts";
 import {KeycloakService} from "@/core/services/keycloak-service.ts";
-import {TokenAtom} from "@/core/atoms/tokenAtom.ts";
+import {TokenAtom} from "@/core/atoms/token-atom.ts";
 import {Textarea} from "@/components/ui/textarea.tsx";
 import {zodResolver} from "@hookform/resolvers/zod"
 import {useForm} from "react-hook-form"
@@ -26,6 +26,10 @@ import {useToast} from "@/hooks/use-toast.ts";
 import {Input} from "@/components/ui/input.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {FileService} from "@/core/services/file-service.ts";
+import {UploadFileDTO} from "@/core/dtos/uploadFileDTO.ts";
+import {DataTable} from "@/components/ui/data-table.tsx";
+import {columns} from "@/components/files-table/files-column.tsx";
+import {MyFilesAtom} from "@/core/atoms/my-files-atom.ts";
 
 export default function Home() {
   const [token] = useAtom(TokenAtom);
@@ -38,11 +42,11 @@ export default function Home() {
   const {toast} = useToast();
   const [showPassword, setShowPassword] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [contentType, setContentType] = useState<string | undefined>('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const fileService = new FileService();
+  const [publicKey, setPublicKey] = useState<string | null>(null);
   //const [searchUser] = useAtom(SearchUserAtom);
-
+  const [myFiles, setMyFiles] = useAtom(MyFilesAtom);
 
   useEffect(() => {
     const handleKeyPair = async () => {
@@ -58,10 +62,12 @@ export default function Home() {
             lastName: user.family_name,
             publicKey: publicKeyPem,
           }
-
+          setPublicKey(publicKeyPem);
           await keyCloakService.updateUserPublicKey(token, test[0].id, dto);
           setPk(privateKeyPem);
           setIsDialogOpen(true);
+        } else {
+          setPublicKey(test[0]['attributes']['publicKey'][0]);
         }
       }
     }
@@ -91,7 +97,7 @@ export default function Home() {
     return btoa(binary);
   }
 
-  async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>, publicKey?: string) {
+  async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>, key?: string) {
     const file = event.target.files?.[0];
 
     if (!file) return;
@@ -101,40 +107,36 @@ export default function Home() {
     const fileDataString = new TextDecoder().decode(fileData);
 
     setSelectedFile(file);
-    setContentType(file.name.split(".").pop());
 
-    if (user?.sub === undefined || contentType === undefined) return;
+    if (user?.sub === undefined) return;
 
     try {
       // Step 2: Generate AES key
-      const aesKey = cryptoService.generateAesKey();
+      const aesKey = await cryptoService.generateAesKey();
 
       // Step 3: Encrypt the file with AES key
-      const encryptedFile = await cryptoService.encryptWithAes(await aesKey, fileDataString);
+      const encryptedFile = await cryptoService.encryptWithAes(aesKey, fileDataString);
 
       // Step 4: Encrypt the AES key with the public key from the parameters
-      const encryptedAesKey = await cryptoService.encryptAesKey( //TODO Fix how to get the public key from the parameters
-          "-----BEGIN PUBLIC KEY-----\n" +
-          "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr8EKOZF6SxoZ0EAZMujE\n" +
-          "ih75u+UaEQcP8KMAddyXFmoEfPigR9FbhuMqy0X6Srdkcjh60TjbWRVYtZvqy/Xp\n" +
-          "mvvyhOOfcyoF7jMKw+j5lDaqhNBImvHNq5aAlvsz3ofoZHc6a2o7366WEnF6uiib\n" +
-          "qsy1lSzhGRvWReuiTOObAy6rH+lnJ2szgngQcl5BKKHcEjchaX4Zk/+jQov9VBsn\n" +
-          "GtRiNaMklShiIIb1ywJDYwpjN/nyrUNQ8KRNz2NQDo+4QyDYwLcpgDxVc6gh9TGB\n" +
-          "2dC10mthO+H0Pz7GooiaWjB5P9mW1dimy9itT5JkZ/Wfy9wckC0HIBvpXQ/1iLkg\n" +
-          "CwIDAQAB\n" +
-          "-----END PUBLIC KEY-----"
-          //publicKey!
-          , await aesKey); //TODO Remove !!!!
+      const s = publicKey;
+
+
+      const encryptedAesKey = await cryptoService.encryptAesKey(//TODO Fix how to get the public key from the parameters
+           s!
+          ,aesKey);
 
       const base64Content = arrayBufferToBase64(encryptedFile);
 
-      await fileService.uploadFile(token,{
+      const dto: UploadFileDTO = {
+        ownerDisplayName: user.preferred_username,
         name: file.name,
         content: base64Content,
-        contentType: ".png",
+        contentType: file.name.split(".").pop() ?? "unknown",
         key: encryptedAesKey,
         ownerId: user?.sub,
-      })
+      }
+
+      await fileService.uploadFile(token,dto)
     } catch (error) {
       console.error(error);
       throw error;
@@ -156,6 +158,17 @@ export default function Home() {
       form.setValue('pk', pk);
     }
   }, [pk, form]);
+
+  useEffect(() => {
+    // https://viewerjs.org/instructions/ TODO
+    const handleGetFiles = async () => {
+      setMyFiles(await fileService.getAllFilesByOwnerId(token))
+    }
+
+    if(token && !myFiles) {
+      handleGetFiles();
+    }
+  }, [token, myFiles]);
 
   async function copyToClipboard() {
     try {
@@ -191,6 +204,12 @@ export default function Home() {
           <FolderPlusIcon/>
           Upload a file
         </Button>
+
+        <div className="container mx-auto py-10">
+          {myFiles && (
+              <DataTable columns={columns} data={myFiles}/>
+          )}
+        </div>
 
         <AlertDialog open={isUploadDialogOpen}>
           <AlertDialogContent>

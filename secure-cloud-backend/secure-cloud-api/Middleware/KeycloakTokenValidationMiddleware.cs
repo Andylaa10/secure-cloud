@@ -49,16 +49,13 @@ public class KeycloakTokenValidationMiddleware
             try
             {
                 var principal = await tokenHandler.ValidateTokenAsync(token, validationParameters);
-                foreach (var claim in principal.Claims)
-                {
-                    // Get id for token
-                    context.Items["Id"] = principal.Claims.FirstOrDefault(c => c.Key == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value ?? null;
-                }
-                
+                // Get id for token
+                context.Items["OwnerId"] = principal.Claims.FirstOrDefault(c => c.Key == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
                 context.Items["TokenIsValid"] = principal.IsValid;
             }
             catch (SecurityTokenException)
             {
+                context.Items["OwnerId"] = null;
                 context.Items["TokenIsValid"] = false;
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsync("Invalid token.");

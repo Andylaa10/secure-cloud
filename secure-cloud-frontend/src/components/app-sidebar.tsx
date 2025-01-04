@@ -3,7 +3,7 @@ import {Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, useS
 import React from "react";
 import {NavUser} from "@/components/nav-user.tsx";
 import {NavMain} from "@/components/nav-main.tsx";
-import {UserAtom} from "@/core/atoms/userAtom";
+import {UserAtom} from "@/core/atoms/user-atom.ts";
 import {useAtom} from "jotai";
 
 // This is sample data.

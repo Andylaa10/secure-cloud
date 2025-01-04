@@ -14,8 +14,8 @@ import {ModeToggle} from "@/components/mode-toggle.tsx";
 import {KeycloakService} from "@/core/services/keycloak-service.ts";
 import {useEffect} from "react";
 import {useAtom} from "jotai";
-import {TokenAtom} from "@/core/atoms/tokenAtom";
-import {UserAtom} from "@/core/atoms/userAtom";
+import {TokenAtom} from "@/core/atoms/token-atom.ts";
+import {UserAtom} from "@/core/atoms/user-atom.ts";
 import {useToast} from "@/hooks/use-toast.ts";
 import {Toaster} from "@/components/ui/toaster.tsx";
 

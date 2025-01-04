@@ -28,6 +28,7 @@ export class CryptoService {
 
   encryptAesKey = async (receivedPublicKeyPem: string, aesKey: string) => {
     try{
+      console.log(receivedPublicKeyPem);
       const publicKey = forge.pki.publicKeyFromPem(receivedPublicKeyPem);
       const encryptedAesKey = publicKey.encrypt(aesKey, 'RSA-OAEP');
       return forge.util.encode64(encryptedAesKey);

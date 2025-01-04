@@ -19,15 +19,14 @@ public class FileController : ControllerBase
     public async Task<IActionResult> GetAllFilesByOwnerId()
     {
         var tokenIsValid = HttpContext.Items["TokenIsValid"] as bool? ?? false;
-        
-        var ownerId = HttpContext.Items["Id"] as string ?? string.Empty;
+        var ownerId = HttpContext.Items["OwnerId"] as string;
 
         if (!tokenIsValid)
         {
             return Unauthorized("Token is invalid or expired.");
         }
 
-        if (!string.IsNullOrEmpty(ownerId))
+        if (string.IsNullOrEmpty(ownerId))
         {
             return BadRequest("Owner Id is invalid");
         }
