@@ -26,9 +26,9 @@ export class CryptoService {
   // TODO For decrypting
   // const decryptedAesKey = rsaKeyPair.privateKey.decrypt(forge.util.decode64(encryptedAesKey) 'RSA-OAEP');
 
-  encryptAesKey = async (receivedpublicKeyPem: string, aesKey: string) => {
+  encryptAesKey = async (receivedPublicKeyPem: string, aesKey: string) => {
     try{
-      const publicKey = forge.pki.publicKeyFromPem(receivedpublicKeyPem);
+      const publicKey = forge.pki.publicKeyFromPem(receivedPublicKeyPem);
       const encryptedAesKey = publicKey.encrypt(aesKey, 'RSA-OAEP');
       return forge.util.encode64(encryptedAesKey);
     }catch (error){

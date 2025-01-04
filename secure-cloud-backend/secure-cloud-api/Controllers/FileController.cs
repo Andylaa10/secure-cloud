@@ -15,19 +15,26 @@ public class FileController : ControllerBase
     }
 
     [HttpGet]
-    [Route("getByOwnerId/{ownerId}")]
-    public async Task<IActionResult> GetAllFilesByOwnerId([FromRoute] Guid ownerId)
+    [Route("getByOwnerId")]
+    public async Task<IActionResult> GetAllFilesByOwnerId()
     {
         var tokenIsValid = HttpContext.Items["TokenIsValid"] as bool? ?? false;
+        
+        var ownerId = HttpContext.Items["Id"] as string ?? string.Empty;
 
         if (!tokenIsValid)
         {
             return Unauthorized("Token is invalid or expired.");
         }
+
+        if (!string.IsNullOrEmpty(ownerId))
+        {
+            return BadRequest("Owner Id is invalid");
+        }
         
         try
         {
-            return Ok(await _fileService.GetAllFilesByOwnerId(ownerId));
+            return Ok(await _fileService.GetAllFilesByOwnerId(Guid.Parse(ownerId)));
         }
         catch (Exception e)
         {

@@ -202,6 +202,4 @@ export class KeycloakService {
             }
         );
     }
-
-
 }

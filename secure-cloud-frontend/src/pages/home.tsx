@@ -51,8 +51,6 @@ export default function Home() {
         if (!test[0]['attributes']) {
           const {publicKeyPem, privateKeyPem} = await cryptoService.generateKeyPair();
 
-          console.log(publicKeyPem, "Marsaduasdusadusadau")
-
           const dto: UpdateUserDTO = {
             email: user.email,
             username: user.preferred_username,
@@ -130,7 +128,7 @@ export default function Home() {
 
       const base64Content = arrayBufferToBase64(encryptedFile);
 
-      await fileService.uploadFile({
+      await fileService.uploadFile(token,{
         name: file.name,
         content: base64Content,
         contentType: ".png",

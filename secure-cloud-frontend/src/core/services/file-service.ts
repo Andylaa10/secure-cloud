@@ -9,9 +9,27 @@ export class FileService {
 
   //TODO GetSharedFiles (how to do that?)
 
-  getFileById = async (id: string) => {
+  getAllFilesByOwnerId = async (accessToken: string) => {
+    try {
+      const response = await this.api.get(`/file/getByOwnerId`, {
+        headers: {
+          "Authorization": `Bearer ${accessToken}`
+        }
+      });
+      return response.data;
+    }catch (error) {
+      console.error('Error getting files:', error);
+      return null;
+    }
+  }
+
+  getFileById = async (accessToken: string, id: string) => {
     try{
-      const response = await this.api.get(`/file/files/${id}`);
+      const response = await this.api.get(`/file/files/${id}`, {
+        headers: {
+          "Authorization": `Bearer ${accessToken}`
+        }
+      });
       return response.data;
     }catch (error){
       console.error('Error getting file by id:', error, '\n', 'ID: ', id);
@@ -19,9 +37,13 @@ export class FileService {
     }
   }
 
-  getAllFiles = async () => {
+  getAllFiles = async (accessToken: string) => {
     try{
-      const response = await this.api.get(`/file/files/`);
+      const response = await this.api.get(`/file/files/`, {
+        headers: {
+          "Authorization": `Bearer ${accessToken}`
+        }
+      });
       return response.data;
     }catch (error){
       console.error('Error getting all files: ', error);
@@ -29,9 +51,13 @@ export class FileService {
     }
   }
 
-  uploadFile = async (dto: UploadFileDTO) => {
+  uploadFile = async (accessToken: string, dto: UploadFileDTO) => {
     try{
-      const response = await this.api.post('/file/uploadFile', dto);
+      const response = await this.api.post('/file/uploadFile', dto, {
+        headers: {
+          "Authorization": `Bearer ${accessToken}`
+        }
+      });
       return response.data;
     }catch (error){
       console.error('Error uploading file:', error);
@@ -39,9 +65,13 @@ export class FileService {
     }
   }
 
-  deleteFile = async (id: string) => {
+  deleteFile = async (accessToken: string, id: string) => {
     try{
-      const response = await this.api.delete(`/file/delete/${id}`);
+      const response = await this.api.delete(`/file/delete/${id}`, {
+        headers: {
+          "Authorization": `Bearer ${accessToken}`
+        }
+      });
       return response.data;
     }catch (error){
       console.error('Error deleting file:', error);
