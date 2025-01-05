@@ -7,5 +7,6 @@ export interface File {
     ownerId: string;
     key: string;
     createdAt: Date;
+    iv: string;
 }
 

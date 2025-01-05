@@ -1,5 +1,6 @@
 import axios from "axios";
 import {UploadFileDTO} from "@/core/dtos/uploadFileDTO.ts";
+import {File} from "@/core/models/file.model.ts";
 
 export class FileService {
 
@@ -9,7 +10,7 @@ export class FileService {
 
   //TODO GetSharedFiles (how to do that?)
 
-  getAllFilesByOwnerId = async (accessToken: string) => {
+  getAllFilesByOwnerId = async (accessToken: string): Promise<File[] | null> => {
     try {
       const response = await this.api.get(`/file/getByOwnerId`, {
         headers: {

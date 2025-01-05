@@ -12,4 +12,5 @@ public class GetFileDto
     public string OwnerId { get; set; }
     public string Key { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string IV { get; set; }
 }

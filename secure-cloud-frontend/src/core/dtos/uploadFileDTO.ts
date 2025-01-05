@@ -5,4 +5,5 @@ export interface UploadFileDTO {
   ownerDisplayName: string;
   ownerId: string;
   key: string;
+  iv: string;
 }

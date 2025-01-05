@@ -1,5 +1,5 @@
 import {ColumnDef} from "@tanstack/react-table";
-import {DeleteIcon, MoreHorizontal, PenIcon, ShareIcon, Trash2Icon} from "lucide-react";
+import {MoreHorizontal, PenIcon, ShareIcon, Trash2Icon} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {
     DropdownMenu,
@@ -8,6 +8,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator, DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu.tsx";
+import {File} from "@/core/models/file.model.ts";
 
 export const columns: ColumnDef<File>[] = [
     {
@@ -43,7 +44,6 @@ export const columns: ColumnDef<File>[] = [
     {
         id: "actions",
         cell: ({ row }) => {
-            console.log(row.original)
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
