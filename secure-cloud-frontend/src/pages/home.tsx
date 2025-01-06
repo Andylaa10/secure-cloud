@@ -104,7 +104,6 @@ export default function Home() {
 
         // Step 1: Read the file data
         const fileData = await file.arrayBuffer();
-        const fileDataString = new TextDecoder().decode(fileData);
 
         setSelectedFile(file);
 
@@ -116,35 +115,35 @@ export default function Home() {
             console.log(aesKey, "aesKey");
 
             // Step 3: Encrypt the file with AES key
-            const {encryptedFile, iv} = await cryptoService.encryptFile(aesKey, fileDataString);
+            const { encryptedFile, ivBytes } = await cryptoService.encryptFile(aesKey, fileData);
 
             // Step 4: Encrypt the AES key with the public key from the parameters
-            const s = publicKey;
+            const encryptedAesKey = await cryptoService.encryptAesKey(publicKey!, aesKey);
 
-            const encryptedAesKey = await cryptoService.encryptAesKey(//TODO Fix how to get the public key from the parameters
-                s!
-                , aesKey);
-
+            // Step 5: Convert the encrypted file to Base64 for storage
             const base64Content = arrayBufferToBase64(encryptedFile);
 
+            // Prepare the DTO for uploading
             const dto: UploadFileDTO = {
                 ownerDisplayName: user.preferred_username,
                 name: file.name,
-                content: base64Content,
+                content: base64Content,  // Base64-encoded content
                 contentType: file.name.split(".").pop() ?? "unknown",
                 key: encryptedAesKey,
                 ownerId: user?.sub,
-                iv: iv
-            }
+                iv: arrayBufferToBase64(ivBytes)
+            };
 
-            await fileService.uploadFile(token, dto)
+            // Step 6: Upload the file
+            await fileService.uploadFile(token, dto);
         } catch (error) {
-            console.error(error);
-            throw error;
+            console.error("Error during file upload:", error);
+            throw error;  // You can add user feedback here, e.g., a toast message
+        } finally {
+            // Reset the file upload state
+            setIsUploadDialogOpen(false);
+            setSelectedFile(null);
         }
-
-        setIsUploadDialogOpen(false);
-        setSelectedFile(null);
     }
 
     const triggerFileInput = () => {
@@ -169,31 +168,31 @@ export default function Home() {
 
             // TODO Need an Atom that holds our private key (change this to match the real public key)
             const pk = "-----BEGIN RSA PRIVATE KEY-----\n" +
-                "MIIEogIBAAKCAQEAh854MexWXUm8vWWKOQ8FhkVJnH4hAWAHkljm11EY7EYTp3ef\n" +
-                "zICrRVMBi43E8/08qp9ujXAGi9AlhtthaB49fXXZ2iwInx4jb2b56uoP9nZdj/7J\n" +
-                "ZV3Nrt2N+Egpu/7hHN9ZBtFP6g55AwY6BTv4oyNh1d2t0yz/ftfQVP/T2fb9r4oM\n" +
-                "WpS2LCF1nNjk0HTVMcJeXpHB2dWvVm+KBDWS/evdWWJVb20dDUOWB35VMUyUFAu7\n" +
-                "5vSNS+aMQTOJ1B4v/cY02LSPMrR65qzlq1/hpI5iLIFAo3BAmdB0rA63UdAUp8FU\n" +
-                "DBTWR0mdIOFmyMZ1uGHttV1shRln/6jv8V369wIDAQABAoIBAHYDtzFy9k4VAN35\n" +
-                "OheBdUSMO36xoI7oW0wS028y+xx/fR7fdk8pVSxmCIa0SP3aB3kiGNjyC849sA6z\n" +
-                "376x4K+A1TKhZ1CWySZK70zz37FGhOHYAD2FOXMG9xNV6maDBC6p7FxfUjnMH96/\n" +
-                "73WS+usRmThXbnF/vfsFIfZrZjcXAJTyb4ixa4KeEreDYJ1nzGUfZ4pLPdGpldar\n" +
-                "28HdSMGpZwciBzZL+/M07NOUf1Nv1EODed93Z4jUd00FiBUdAh54CjwJ1iMl8sEo\n" +
-                "1qSeibCZvl6D9EDbdGLhpvNz4lf/gEZ5F9aQgWtHuooq66EHG6LuOW27/9BCILpc\n" +
-                "a9pNFakCgYEA4jQqYU6fCWp/Vxy4snOlOmtxudFJ2hWnHNADhtkx/JQPeaCemKsl\n" +
-                "gk1px+FGtjMVGEW6o0F4Jldf4Dzn2/VT+LI4gwB8vKv23A30lX/R4WO38eze2Nq9\n" +
-                "5kiJ6sU/cixXT/UejdJlqDlTdAa7Xfizyt6OzxGdC1eE9wtnnIqpNbMCgYEAmbIC\n" +
-                "782WAmWOxCobdVTW3E3yQsanGO8gT8ov0je8JO4/6GRYtSn/jli6vVJnDuYODuW0\n" +
-                "tvtYb9q6jb/HFkQRhB+DrS2n7LgkMcbz5FpxMxVJiRLkrp0uVv+j1u3U692JmMRy\n" +
-                "v1KJPvKz4Zg9A6XtmQ38gkYICI044XkbYbpyC60CgYBheZs9nVSZCSRglIbel0j/\n" +
-                "GKfEK/TIHoaJuvWaGWQZ9G+KuPU+0plyQguwT1paTz7q27lmemLdGs+84GIFff02\n" +
-                "cQ47HW2jG/Nftj/MYG0/0+nDPZB2ICSu5FlSKreBaqwhT35gHOcji7hziicZgn9v\n" +
-                "j2I4xt1GsusgTfDTG0l5UwKBgBD8bnyoQPr01GlzqeM2xCRG7Q5aPB9yViTbWJuo\n" +
-                "E0AVoLSDWpZzFM5bmg/Qapln7YfR9T3/209JYjLGTi90yGbMwNXD5Poxg7aIoW3M\n" +
-                "XRRjNuRSVTnDH1r4F9hqIo0Kx+k9VN02NvrhAeZd1+huTysKM60GJl8jlHS+2Lrd\n" +
-                "SztlAoGARtJDOXzZyl5miprUC0FfzZMEebHQec46q39JvWq/dttuUeg+2E0nTIxH\n" +
-                "oM5CAvt/sWih1juxVbb5hFbKnMjpPkT8QzYCDEPY/UWWdmCQDBiuqGoCHiQLvx27\n" +
-                "m5inhsARUygD7j+f13q8Zgi+Rc+ScB9vVfbgk0eHsln+Kze31YY=\n" +
+                "MIIEpQIBAAKCAQEA2h15SWfVVLvGDsklbFKx4t7RgGh6x8UDlSbkvxNbRTQrQMVj\n" +
+                "mmYFECNtXG6enkVxdx7HH0QDu/A4Dl+CQUJLSZ4kaOtQ25DOfxzUm40zG9MBB9t6\n" +
+                "eY60MSsM/l7SwipAgXLXMLKU6SdiRMgklp7pQwHZTfh3Uwko+70yUREhIQgSwIOS\n" +
+                "49w35v1UdVffJ1snnoL4WJHJM3+GQPz96EUek03HAAF0/0+G30TyQHmo3R6NWj1k\n" +
+                "qpzkH2BWkO7QthVAVLr9sw3t9o56lJk7IiW5qfjglguIxhkohnJ3Ay7NiSPoFXaN\n" +
+                "rt/mQHhxGlC/y2DLX/yX3Jwds3UxTWjthTzZLQIDAQABAoIBAQDGpG0fY0cwgkqg\n" +
+                "kKRagP2s5szaK00WvuDCZ8eQFWrcHeT+ekZ6CUu3JOymb8BZ2Fi76fXjDahw8xe6\n" +
+                "T1VrZZr3kuUKALWFId5Oec1PVUskngikRUjHiCWnWdPdnjJHzv8sZZCBs0JXDR08\n" +
+                "EyLvYg6Cjh6AGjdiEkeW7Pn0RqtrTiWieVP+k+8k0xQgtkMK9Y88qz7US+/Y9zAp\n" +
+                "P6trFXgXic6YvUIJLGW5KrIKhQBTXQlvPnGSwbm9jZng49mZD0gdAT7t46R7AhIt\n" +
+                "AHzHnNkVWKW9YR4oJM7wpeqaYl2p8nAJXxeiXnG+A6FppnhvfCNiAGDrtNDMKy+v\n" +
+                "plWszHnpAoGBAPwycop3fV4WKo8eIFF24GURnHhJfpLIRJgF16lpEsQc3X+L5nTh\n" +
+                "DtiZ21Ipt9hkDo6RNKtUz1nMlpmCHM+OLRBnzWzH7pmHOuhPKXyfeCdMoxn+9S+M\n" +
+                "wV8nKIsan0TAS9hxOXKnTI7zlPq4grpjxx71xjeicDGI4bYBv+yzrpWXAoGBAN1n\n" +
+                "ddv/QXrtv4ab6OaY8mZOyIwWZ/kxM9/cUqVegFML91ElA802j74OlCsNCsS+sdZU\n" +
+                "RI2346uGMz6aqeqXXC9+z+K9xFAxxnrvEW1yH6aMXuGTwVlQHSzu9jfpBQ5JQELJ\n" +
+                "J4+0UKCvYuuQTs4/M/Uu8kuNp++PHx5dMahAikfbAoGBAL4BxApOvEWGrcnmCLNX\n" +
+                "vPhorFp0BMjR2dwviqw4XcsjdD4EST0F0wmd4X+lrr15pP4EqIns+8vMOCqvvMUj\n" +
+                "eRBDJKIwf7NsDxW3jqo1+3CgbMHJNTD9+zKVbhZfmF9UAdCwfXfEVAnfuv6qxNNp\n" +
+                "GTxaL1z7JUwstOFLsC3FsmNBAoGASHwmye+3sFdF7Pv+NAC+21/PqI1tXNgO86te\n" +
+                "I2Xc/VNdlONZa0YBqWd8etu6Os9zyYetKfiaQP2eqVBZcMQ9Gg+aX9FhBCBHqte6\n" +
+                "DOrgEdbC+Xc2RddEtgFF+uf/D75Lm5HfsdyGyRSifhywsDVg/VRxXurxoCxrM7Wv\n" +
+                "HDaFDyECgYEA6IstFwY8nxx+584GTKvuRfZVs6mEKCkoUU8MVWFy/1tNd/Lz/07E\n" +
+                "Cs5RnyW2ZxedAkF8hCX0gMZl9tirked5jnGDhH200pHNX5PDhQYKfuwWM/bp+9Ry\n" +
+                "4N2yQ3Buqx8LhujgoXL2uODWI6GWY5rePnWWwydpRcHwVN5tu/RugHY=\n" +
                 "-----END RSA PRIVATE KEY-----\n"
 
             try {
@@ -215,6 +214,7 @@ export default function Home() {
         if (token && !myFiles) {
             handleGetFiles();
         }
+
     }, [token, myFiles]);
 
     async function copyToClipboard() {

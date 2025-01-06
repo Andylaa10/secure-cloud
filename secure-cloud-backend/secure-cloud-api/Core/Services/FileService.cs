@@ -59,6 +59,7 @@ public class FileService : IFileService
     {
         try
         {
+            
             var file = _mapper.Map<GetFileDto>(await _fileRepository.AddFile(_mapper.Map<File>(dto)));
             return file;
         }
