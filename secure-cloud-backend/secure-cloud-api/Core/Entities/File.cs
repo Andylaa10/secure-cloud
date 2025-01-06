@@ -12,5 +12,5 @@ public class File
     public string OwnerDisplayName { get; set; }
     public string Key { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public string IV { get; set; }
+    public Byte[] IV { get; set; }
 }

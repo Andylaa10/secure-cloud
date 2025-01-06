@@ -29,23 +29,18 @@ export class CryptoService {
             const decodedAesKey = forge.util.decode64(aesKey);
 
             const decryptedKey = privateKey.decrypt(decodedAesKey, 'RSA-OAEP');
-
-            return decryptedKey;
+            return forge.util.encode64(decryptedKey);
         } catch (error) {
             console.error('Error decrypting AES key:', error);
             throw error;
         }
     };
 
-
     encryptAesKey = async (receivedPublicKeyPem: string, aesKey: string) => {
         try {
             const publicKey = forge.pki.publicKeyFromPem(receivedPublicKeyPem);
-
             const decodedAesKey = forge.util.decode64(aesKey);
-
             const encryptedKey = publicKey.encrypt(decodedAesKey, 'RSA-OAEP');
-
             return forge.util.encode64(encryptedKey);
         } catch (error) {
             console.error('Error encrypting AES key:', error);
@@ -53,28 +48,52 @@ export class CryptoService {
         }
     }
 
-
-    encryptFile = async (aesKey: string, fileData: string) => {
+    encryptFile = async (aesKey: string, fileData: ArrayBuffer) => {
         const iv = forge.random.getBytesSync(16);
-        const cipher = forge.cipher.createCipher('AES-CBC', aesKey);
-        cipher.start({iv: iv});
-        cipher.update(forge.util.createBuffer(fileData));
+
+        const fileDataBytes = new Uint8Array(fileData);
+        const cipher = forge.cipher.createCipher('AES-CBC', forge.util.decode64(aesKey));
+
+        cipher.start({iv});
+        cipher.update(forge.util.createBuffer(fileDataBytes));
         cipher.finish();
 
-        // Convert IV and encrypted data to Uint8Array directly
+        const encryptedBytes = cipher.output.getBytes();
+
         const ivBytes = new Uint8Array(iv.split('').map((c) => c.charCodeAt(0)));
-        const encryptedBytes = new Uint8Array(cipher.output.getBytes().split('').map((c) => c.charCodeAt(0)));
-
-        // Combine IV and encrypted data into a single Uint8Array
         const encryptedFile = new Uint8Array(ivBytes.length + encryptedBytes.length);
-        encryptedFile.set(ivBytes, 0); // Copy IV to the beginning
-        encryptedFile.set(encryptedBytes, ivBytes.length); // Append encrypted data after IV
+        encryptedFile.set(ivBytes, 0);
+        encryptedFile.set(new Uint8Array(encryptedBytes.split('').map((c) => c.charCodeAt(0))), ivBytes.length);
 
-        return {encryptedFile, iv};
+        return {encryptedFile, ivBytes};
     }
 
+    decryptFile = async (aesKey: string, encryptedFile: Uint8Array, iv: Uint8Array): Promise<Uint8Array> => {
+        try {
+            const decodedAesKey = forge.util.decode64(aesKey);
+            const decodedAesKeyBuffer = forge.util.createBuffer(decodedAesKey, 'raw');
+            const ivBuffer= forge.util.createBuffer(iv);
 
-    decryptFile = async (aesKey: Uint8Array[], fileData: string, iv: string) => {
-        //TODO
-    }
+            const encryptedData = encryptedFile.slice(ivBuffer.length());
+            const encryptedBuffer = forge.util.createBuffer(encryptedData);
+
+            const cipher = forge.cipher.createDecipher('AES-CBC', decodedAesKeyBuffer);
+            cipher.start({ iv: ivBuffer });
+
+            cipher.update(encryptedBuffer);
+
+            let decryptedData = new Uint8Array(cipher.output.bytes().split('').map(char => char.charCodeAt(0)));
+
+            const paddingLength = decryptedData[decryptedData.length - 1];
+            if (paddingLength > 0 && paddingLength <= 16) {
+                decryptedData = decryptedData.slice(0, decryptedData.length - paddingLength);
+            }
+
+            return decryptedData;
+        } catch (error) {
+            console.error('Decryption error:', error);
+            throw error;
+        }
+    };
+
 }

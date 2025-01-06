@@ -89,12 +89,11 @@ export default function Home() {
         resolver: zodResolver(FormSchema),
     });
 
-    // Convert Uint8Array to base64
     function arrayBufferToBase64(buffer: ArrayBuffer): string {
+        const uint8Array = new Uint8Array(buffer);
         let binary = '';
-        const bytes = new Uint8Array(buffer);
-        bytes.forEach((b) => (binary += String.fromCharCode(b)));
-        return btoa(binary);
+        uint8Array.forEach(byte => binary += String.fromCharCode(byte));
+        return window.btoa(binary);
     }
 
     async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>, key?: string) {
@@ -102,49 +101,38 @@ export default function Home() {
 
         if (!file) return;
 
-        // Step 1: Read the file data
         const fileData = await file.arrayBuffer();
-        const fileDataString = new TextDecoder().decode(fileData);
 
         setSelectedFile(file);
 
         if (user?.sub === undefined) return;
 
         try {
-            // Step 2: Generate AES key
             const aesKey = await cryptoService.generateAesKey();
-            console.log(aesKey, "aesKey");
 
-            // Step 3: Encrypt the file with AES key
-            const {encryptedFile, iv} = await cryptoService.encryptFile(aesKey, fileDataString);
+            const { encryptedFile, ivBytes } = await cryptoService.encryptFile(aesKey, fileData);
 
-            // Step 4: Encrypt the AES key with the public key from the parameters
-            const s = publicKey;
-
-            const encryptedAesKey = await cryptoService.encryptAesKey(//TODO Fix how to get the public key from the parameters
-                s!
-                , aesKey);
-
-            const base64Content = arrayBufferToBase64(encryptedFile);
+            const encryptedAesKey = await cryptoService.encryptAesKey(publicKey!, aesKey);
 
             const dto: UploadFileDTO = {
                 ownerDisplayName: user.preferred_username,
                 name: file.name,
-                content: base64Content,
+                content: arrayBufferToBase64(encryptedFile),
                 contentType: file.name.split(".").pop() ?? "unknown",
                 key: encryptedAesKey,
                 ownerId: user?.sub,
-                iv: iv
-            }
+                iv: arrayBufferToBase64(ivBytes)
+            };
 
-            await fileService.uploadFile(token, dto)
+            // Step 6: Upload the file
+            await fileService.uploadFile(token, dto);
         } catch (error) {
-            console.error(error);
+            console.error("Error during file upload:", error);
             throw error;
+        } finally {
+            setIsUploadDialogOpen(false);
+            setSelectedFile(null);
         }
-
-        setIsUploadDialogOpen(false);
-        setSelectedFile(null);
     }
 
     const triggerFileInput = () => {
@@ -169,39 +157,37 @@ export default function Home() {
 
             // TODO Need an Atom that holds our private key (change this to match the real public key)
             const pk = "-----BEGIN RSA PRIVATE KEY-----\n" +
-                "MIIEogIBAAKCAQEAh854MexWXUm8vWWKOQ8FhkVJnH4hAWAHkljm11EY7EYTp3ef\n" +
-                "zICrRVMBi43E8/08qp9ujXAGi9AlhtthaB49fXXZ2iwInx4jb2b56uoP9nZdj/7J\n" +
-                "ZV3Nrt2N+Egpu/7hHN9ZBtFP6g55AwY6BTv4oyNh1d2t0yz/ftfQVP/T2fb9r4oM\n" +
-                "WpS2LCF1nNjk0HTVMcJeXpHB2dWvVm+KBDWS/evdWWJVb20dDUOWB35VMUyUFAu7\n" +
-                "5vSNS+aMQTOJ1B4v/cY02LSPMrR65qzlq1/hpI5iLIFAo3BAmdB0rA63UdAUp8FU\n" +
-                "DBTWR0mdIOFmyMZ1uGHttV1shRln/6jv8V369wIDAQABAoIBAHYDtzFy9k4VAN35\n" +
-                "OheBdUSMO36xoI7oW0wS028y+xx/fR7fdk8pVSxmCIa0SP3aB3kiGNjyC849sA6z\n" +
-                "376x4K+A1TKhZ1CWySZK70zz37FGhOHYAD2FOXMG9xNV6maDBC6p7FxfUjnMH96/\n" +
-                "73WS+usRmThXbnF/vfsFIfZrZjcXAJTyb4ixa4KeEreDYJ1nzGUfZ4pLPdGpldar\n" +
-                "28HdSMGpZwciBzZL+/M07NOUf1Nv1EODed93Z4jUd00FiBUdAh54CjwJ1iMl8sEo\n" +
-                "1qSeibCZvl6D9EDbdGLhpvNz4lf/gEZ5F9aQgWtHuooq66EHG6LuOW27/9BCILpc\n" +
-                "a9pNFakCgYEA4jQqYU6fCWp/Vxy4snOlOmtxudFJ2hWnHNADhtkx/JQPeaCemKsl\n" +
-                "gk1px+FGtjMVGEW6o0F4Jldf4Dzn2/VT+LI4gwB8vKv23A30lX/R4WO38eze2Nq9\n" +
-                "5kiJ6sU/cixXT/UejdJlqDlTdAa7Xfizyt6OzxGdC1eE9wtnnIqpNbMCgYEAmbIC\n" +
-                "782WAmWOxCobdVTW3E3yQsanGO8gT8ov0je8JO4/6GRYtSn/jli6vVJnDuYODuW0\n" +
-                "tvtYb9q6jb/HFkQRhB+DrS2n7LgkMcbz5FpxMxVJiRLkrp0uVv+j1u3U692JmMRy\n" +
-                "v1KJPvKz4Zg9A6XtmQ38gkYICI044XkbYbpyC60CgYBheZs9nVSZCSRglIbel0j/\n" +
-                "GKfEK/TIHoaJuvWaGWQZ9G+KuPU+0plyQguwT1paTz7q27lmemLdGs+84GIFff02\n" +
-                "cQ47HW2jG/Nftj/MYG0/0+nDPZB2ICSu5FlSKreBaqwhT35gHOcji7hziicZgn9v\n" +
-                "j2I4xt1GsusgTfDTG0l5UwKBgBD8bnyoQPr01GlzqeM2xCRG7Q5aPB9yViTbWJuo\n" +
-                "E0AVoLSDWpZzFM5bmg/Qapln7YfR9T3/209JYjLGTi90yGbMwNXD5Poxg7aIoW3M\n" +
-                "XRRjNuRSVTnDH1r4F9hqIo0Kx+k9VN02NvrhAeZd1+huTysKM60GJl8jlHS+2Lrd\n" +
-                "SztlAoGARtJDOXzZyl5miprUC0FfzZMEebHQec46q39JvWq/dttuUeg+2E0nTIxH\n" +
-                "oM5CAvt/sWih1juxVbb5hFbKnMjpPkT8QzYCDEPY/UWWdmCQDBiuqGoCHiQLvx27\n" +
-                "m5inhsARUygD7j+f13q8Zgi+Rc+ScB9vVfbgk0eHsln+Kze31YY=\n" +
+                "MIIEowIBAAKCAQEAtOTRgEeOT4MkFazOM7+9we6DuanZLFNwspmFmJTvrCqV90q/\n" +
+                "a1rSdwFegsA+TaIIYRuQMAhAGwhJ4fbJLShfHbijVFc2qFA8D6bEsNBUHywDdca2\n" +
+                "LKiKCYQlc+eP/ZeVTm7+qkHvxPMwFgT65rYSCHaHT96ealxzYERw+6Acgc2QkZng\n" +
+                "06JPWw6WswJUczZWrvh+7uG26UyVVVU58pkdcy8U4Gfmmgw5ZBq3Rq2AZAUA8kLa\n" +
+                "Il1FT20Eq8j74uqxQhreKKlVfwtv7ssGxusDZCpabgDB3uA1Ih91ASHOuDkYwDr+\n" +
+                "N4D3GnlTQy/usbyyDjYerwHI5w+EB2JFZFIH6QIDAQABAoIBAQCXTJeKAs+d46Mn\n" +
+                "2exyThqJ/VQB03VI5NVrHIsoLtI0Hz5lowht434LeYKyO9cgmbkGd8Zm1k/ADHO3\n" +
+                "YvGrKow70LYTkgquRsWllagH94eUtvyB4t12htVF1lh5FCJUShfgjWfFwfaotXrv\n" +
+                "v+SXWYvFtlXA0QORFJiP2U7it22AhqY71Ma1Oq0/WOqz898cR92RGdMisTeajCnu\n" +
+                "KcHRdp7O7lx3DSpx8AX9hl/3L2q99eh5yU8RjV4ue5hkNN2UH8TwmFF2tVZ70P3C\n" +
+                "cDTV3HrhF1PTdUlMeMlp90p4mRB1UMLODyvOu17qO7fWQGe4pwTg2WdZSkPYyqJC\n" +
+                "DqaktloBAoGBANetYK7cF6NRBS4bvYiN+5CcNFkkvxSvo3tOynS620mxXNZsOfKp\n" +
+                "yhBzd+IUtAElP0g2qPKQ0amt+rCHbEYdmSwmdq9sTM/KbCyarI2dyDPnKso5w2gJ\n" +
+                "ZdrKIYR8kzWpJrJl+qkTNf9ygTVE+QBqA3d/RS/Ee51guQOmzjra4rXBAoGBANa2\n" +
+                "p9vofNdXeTWkyVQiqFV81c81wnjF7ZWD0FMW9q+udldBcFyQ1DVdbr9xdwUTAk+7\n" +
+                "oCPZIQPp2I50rOFxP2Au6Nu+yBKbPeKwjrsdG805pvpxqr+C2fVNzYaPQQsazqSo\n" +
+                "xIns6YFpbBV75QiICfE40zOVlCIpHz4njNwVtewpAoGATMpYUCng6K8iLwaFdydG\n" +
+                "WHilUs/4kL7wcCjfgKw/A3/41Ad4omO9pBnYp1BDvtyqKWX8xVC2tblSNqQg8t36\n" +
+                "+XNAcrkWqC0kUsVHhqyU6ZX28EWcw2AFOd8aC/fm2gY91urkUmqaoTb9th+2oGUe\n" +
+                "kt9nnNhSQvh7J0euydnBOoECgYAf26I0Yt6DJRt69iRZM3s+k/M1d4iPWu7RjGlQ\n" +
+                "qsuXbY9pivAdC/AwqthP14oNWrCxG+m65/CaIAxdtrogCSmaH9u1Hy2YdShNhlzn\n" +
+                "Ln59iNxZtJvdJpEocI7aNE82Upfunovq2xgad4Xt+iAVj/nJrODJepwsJWXZVwzz\n" +
+                "atU/YQKBgEEqHDBgAaWrJUeTRc2arbJgO9F7+2K99qoK46IvdeCgvHHwE6ClZX/h\n" +
+                "EhSJC5coA9g0pab+ASZ7lyGt8ce2SYmJkZ/e0XTQQlFqoxPhcVfjpR+Bpd6iZhPu\n" +
+                "rUzXoDER1Wm3jnlGvDNvQFMuW/cQyzOrwBanPlfSGrvDLl5PTErZ\n" +
                 "-----END RSA PRIVATE KEY-----\n"
 
             try {
                 const decryptedFiles = await Promise.all(
                     files.map(async (f) => {
-                        console.log(`Encrypted key (Base64): ${f.key}`);
                         const decryptedKey = await cryptoService.decryptAesKey(pk, f.key);
-                        console.log(`Decrypted key for ${f.name}:`, decryptedKey);
                         return {...f, key: decryptedKey};
                     })
                 );
@@ -215,6 +201,7 @@ export default function Home() {
         if (token && !myFiles) {
             handleGetFiles();
         }
+
     }, [token, myFiles]);
 
     async function copyToClipboard() {
