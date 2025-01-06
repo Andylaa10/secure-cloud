@@ -11,101 +11,39 @@ import {
 import {File} from "@/core/models/file.model.ts";
 import {CryptoService} from "@/core/services/crypto-service.ts";
 
-// const downloadFile = async (aesKey: string, encryptedFile: Uint8Array, iv: Uint8Array, name: string): Promise<void> => {
-//     try {
-//         const cryptoService = new CryptoService();
-//         const content = await cryptoService.decryptFile(aesKey, encryptedFile, iv);
-//
-//         // Log the decrypted content as raw bytes
-//         console.log('Decrypted content (Uint8Array):', content);
-//         console.log('Decrypted content length:', content.length);
-//
-//         if (content.length === 0) {
-//             console.error('Decrypted content is empty!');
-//             return;
-//         }
-//
-//         const contentToDownload = new Blob([content], { type: 'application/octet-stream' });
-//
-//         // Trigger the download with the appropriate file extension
-//         const url = URL.createObjectURL(contentToDownload);
-//         const a = document.createElement('a');
-//         a.href = url;
-//         a.download = name || 'download';  // Ensure default file name if not provided
-//         a.click();
-//
-//         // Clean up the object URL after download
-//         URL.revokeObjectURL(url);
-//
-//
-//         async function testEncryptionDecryption() {
-//             const aesKey = await cryptoService.generateAesKey();
-//             const fileData = new TextEncoder().encode('Hello, World!').buffer;
-//
-//             // Encrypt the file
-//             const { encryptedFile, ivBytes } = await cryptoService.encryptFile(aesKey, fileData);
-//
-//             // Decrypt the file
-//             try {
-//                 const decryptedData = await cryptoService.decryptFile(aesKey, encryptedFile, ivBytes);
-//                 console.log('Decrypted Data:', new TextDecoder().decode(decryptedData));
-//             } catch (error) {
-//                 console.error('Decryption error:', error);
-//             }
-//         }
-//
-//         testEncryptionDecryption();
-//     } catch (error) {
-//         console.error('File download error:', error);
-//     }
-// };
-const downloadFile = async (aesKey: string, encryptedFile: Uint8Array, iv: Uint8Array, name: string): Promise<void> => {
+function base64ToArrayBuffer(base64: string) {
+    const binaryString = atob(base64);  // Decode Base64 to binary string
+    const byteArray = new Uint8Array(binaryString.length);
+
+    for (let i = 0; i < binaryString.length; i++) {
+        byteArray[i] = binaryString.charCodeAt(i);
+    }
+
+    return byteArray;
+}
+
+const downloadFile = async (aesKey: string, encryptedFileBase64: string, encryptedIV: string, name: string): Promise<void> => {
     try {
+
+        const encryptedFile = base64ToArrayBuffer(encryptedFileBase64);
+        const iv = base64ToArrayBuffer(encryptedIV);
         const cryptoService = new CryptoService();
-
-        // Step 1: Decrypt the file
         const content = await cryptoService.decryptFile(aesKey, encryptedFile, iv);
-
-        // Log the decrypted content to verify
-        console.log('Decrypted content (Uint8Array):', content);
-        console.log('Decrypted content length:', content.length);
 
         if (content.length === 0) {
             console.error('Decrypted content is empty!');
             return;
         }
 
-        // Step 2: Create a Blob from the decrypted binary content
         const contentToDownload = new Blob([content], { type: 'application/octet-stream' });
 
-        // Step 3: Trigger the download with the appropriate file name
         const url = URL.createObjectURL(contentToDownload);
         const a = document.createElement('a');
         a.href = url;
-        a.download = name || 'download';  // Default file name if not provided
+        a.download = name;
         a.click();
 
-        // Clean up the object URL after download
         URL.revokeObjectURL(url);
-
-        async function testEncryptionDecryption() {
-            const aesKey = await cryptoService.generateAesKey();
-            const fileData = new TextEncoder().encode('Hello, World!').buffer;
-
-            // Encrypt the file
-            const { encryptedFile, ivBytes } = await cryptoService.encryptFile(aesKey, fileData);
-
-            // Decrypt the file
-            try {
-                const decryptedData = await cryptoService.decryptFile(aesKey, encryptedFile, ivBytes);
-                console.log('Decrypted Data:', new TextDecoder().decode(decryptedData));
-            } catch (error) {
-                console.error('Decryption error:', error);
-            }
-        }
-
-        testEncryptionDecryption();
-
     } catch (error) {
         console.error('File download error:', error);
     }

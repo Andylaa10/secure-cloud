@@ -89,12 +89,11 @@ export default function Home() {
         resolver: zodResolver(FormSchema),
     });
 
-    // Convert Uint8Array to base64
     function arrayBufferToBase64(buffer: ArrayBuffer): string {
+        const uint8Array = new Uint8Array(buffer);
         let binary = '';
-        const bytes = new Uint8Array(buffer);
-        bytes.forEach((b) => (binary += String.fromCharCode(b)));
-        return btoa(binary);
+        uint8Array.forEach(byte => binary += String.fromCharCode(byte));
+        return window.btoa(binary);
     }
 
     async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>, key?: string) {
@@ -102,7 +101,6 @@ export default function Home() {
 
         if (!file) return;
 
-        // Step 1: Read the file data
         const fileData = await file.arrayBuffer();
 
         setSelectedFile(file);
@@ -110,24 +108,16 @@ export default function Home() {
         if (user?.sub === undefined) return;
 
         try {
-            // Step 2: Generate AES key
             const aesKey = await cryptoService.generateAesKey();
-            console.log(aesKey, "aesKey");
 
-            // Step 3: Encrypt the file with AES key
             const { encryptedFile, ivBytes } = await cryptoService.encryptFile(aesKey, fileData);
 
-            // Step 4: Encrypt the AES key with the public key from the parameters
             const encryptedAesKey = await cryptoService.encryptAesKey(publicKey!, aesKey);
 
-            // Step 5: Convert the encrypted file to Base64 for storage
-            const base64Content = arrayBufferToBase64(encryptedFile);
-
-            // Prepare the DTO for uploading
             const dto: UploadFileDTO = {
                 ownerDisplayName: user.preferred_username,
                 name: file.name,
-                content: base64Content,  // Base64-encoded content
+                content: arrayBufferToBase64(encryptedFile),
                 contentType: file.name.split(".").pop() ?? "unknown",
                 key: encryptedAesKey,
                 ownerId: user?.sub,
@@ -138,9 +128,8 @@ export default function Home() {
             await fileService.uploadFile(token, dto);
         } catch (error) {
             console.error("Error during file upload:", error);
-            throw error;  // You can add user feedback here, e.g., a toast message
+            throw error;
         } finally {
-            // Reset the file upload state
             setIsUploadDialogOpen(false);
             setSelectedFile(null);
         }
@@ -168,39 +157,37 @@ export default function Home() {
 
             // TODO Need an Atom that holds our private key (change this to match the real public key)
             const pk = "-----BEGIN RSA PRIVATE KEY-----\n" +
-                "MIIEpQIBAAKCAQEA2h15SWfVVLvGDsklbFKx4t7RgGh6x8UDlSbkvxNbRTQrQMVj\n" +
-                "mmYFECNtXG6enkVxdx7HH0QDu/A4Dl+CQUJLSZ4kaOtQ25DOfxzUm40zG9MBB9t6\n" +
-                "eY60MSsM/l7SwipAgXLXMLKU6SdiRMgklp7pQwHZTfh3Uwko+70yUREhIQgSwIOS\n" +
-                "49w35v1UdVffJ1snnoL4WJHJM3+GQPz96EUek03HAAF0/0+G30TyQHmo3R6NWj1k\n" +
-                "qpzkH2BWkO7QthVAVLr9sw3t9o56lJk7IiW5qfjglguIxhkohnJ3Ay7NiSPoFXaN\n" +
-                "rt/mQHhxGlC/y2DLX/yX3Jwds3UxTWjthTzZLQIDAQABAoIBAQDGpG0fY0cwgkqg\n" +
-                "kKRagP2s5szaK00WvuDCZ8eQFWrcHeT+ekZ6CUu3JOymb8BZ2Fi76fXjDahw8xe6\n" +
-                "T1VrZZr3kuUKALWFId5Oec1PVUskngikRUjHiCWnWdPdnjJHzv8sZZCBs0JXDR08\n" +
-                "EyLvYg6Cjh6AGjdiEkeW7Pn0RqtrTiWieVP+k+8k0xQgtkMK9Y88qz7US+/Y9zAp\n" +
-                "P6trFXgXic6YvUIJLGW5KrIKhQBTXQlvPnGSwbm9jZng49mZD0gdAT7t46R7AhIt\n" +
-                "AHzHnNkVWKW9YR4oJM7wpeqaYl2p8nAJXxeiXnG+A6FppnhvfCNiAGDrtNDMKy+v\n" +
-                "plWszHnpAoGBAPwycop3fV4WKo8eIFF24GURnHhJfpLIRJgF16lpEsQc3X+L5nTh\n" +
-                "DtiZ21Ipt9hkDo6RNKtUz1nMlpmCHM+OLRBnzWzH7pmHOuhPKXyfeCdMoxn+9S+M\n" +
-                "wV8nKIsan0TAS9hxOXKnTI7zlPq4grpjxx71xjeicDGI4bYBv+yzrpWXAoGBAN1n\n" +
-                "ddv/QXrtv4ab6OaY8mZOyIwWZ/kxM9/cUqVegFML91ElA802j74OlCsNCsS+sdZU\n" +
-                "RI2346uGMz6aqeqXXC9+z+K9xFAxxnrvEW1yH6aMXuGTwVlQHSzu9jfpBQ5JQELJ\n" +
-                "J4+0UKCvYuuQTs4/M/Uu8kuNp++PHx5dMahAikfbAoGBAL4BxApOvEWGrcnmCLNX\n" +
-                "vPhorFp0BMjR2dwviqw4XcsjdD4EST0F0wmd4X+lrr15pP4EqIns+8vMOCqvvMUj\n" +
-                "eRBDJKIwf7NsDxW3jqo1+3CgbMHJNTD9+zKVbhZfmF9UAdCwfXfEVAnfuv6qxNNp\n" +
-                "GTxaL1z7JUwstOFLsC3FsmNBAoGASHwmye+3sFdF7Pv+NAC+21/PqI1tXNgO86te\n" +
-                "I2Xc/VNdlONZa0YBqWd8etu6Os9zyYetKfiaQP2eqVBZcMQ9Gg+aX9FhBCBHqte6\n" +
-                "DOrgEdbC+Xc2RddEtgFF+uf/D75Lm5HfsdyGyRSifhywsDVg/VRxXurxoCxrM7Wv\n" +
-                "HDaFDyECgYEA6IstFwY8nxx+584GTKvuRfZVs6mEKCkoUU8MVWFy/1tNd/Lz/07E\n" +
-                "Cs5RnyW2ZxedAkF8hCX0gMZl9tirked5jnGDhH200pHNX5PDhQYKfuwWM/bp+9Ry\n" +
-                "4N2yQ3Buqx8LhujgoXL2uODWI6GWY5rePnWWwydpRcHwVN5tu/RugHY=\n" +
+                "MIIEowIBAAKCAQEAtOTRgEeOT4MkFazOM7+9we6DuanZLFNwspmFmJTvrCqV90q/\n" +
+                "a1rSdwFegsA+TaIIYRuQMAhAGwhJ4fbJLShfHbijVFc2qFA8D6bEsNBUHywDdca2\n" +
+                "LKiKCYQlc+eP/ZeVTm7+qkHvxPMwFgT65rYSCHaHT96ealxzYERw+6Acgc2QkZng\n" +
+                "06JPWw6WswJUczZWrvh+7uG26UyVVVU58pkdcy8U4Gfmmgw5ZBq3Rq2AZAUA8kLa\n" +
+                "Il1FT20Eq8j74uqxQhreKKlVfwtv7ssGxusDZCpabgDB3uA1Ih91ASHOuDkYwDr+\n" +
+                "N4D3GnlTQy/usbyyDjYerwHI5w+EB2JFZFIH6QIDAQABAoIBAQCXTJeKAs+d46Mn\n" +
+                "2exyThqJ/VQB03VI5NVrHIsoLtI0Hz5lowht434LeYKyO9cgmbkGd8Zm1k/ADHO3\n" +
+                "YvGrKow70LYTkgquRsWllagH94eUtvyB4t12htVF1lh5FCJUShfgjWfFwfaotXrv\n" +
+                "v+SXWYvFtlXA0QORFJiP2U7it22AhqY71Ma1Oq0/WOqz898cR92RGdMisTeajCnu\n" +
+                "KcHRdp7O7lx3DSpx8AX9hl/3L2q99eh5yU8RjV4ue5hkNN2UH8TwmFF2tVZ70P3C\n" +
+                "cDTV3HrhF1PTdUlMeMlp90p4mRB1UMLODyvOu17qO7fWQGe4pwTg2WdZSkPYyqJC\n" +
+                "DqaktloBAoGBANetYK7cF6NRBS4bvYiN+5CcNFkkvxSvo3tOynS620mxXNZsOfKp\n" +
+                "yhBzd+IUtAElP0g2qPKQ0amt+rCHbEYdmSwmdq9sTM/KbCyarI2dyDPnKso5w2gJ\n" +
+                "ZdrKIYR8kzWpJrJl+qkTNf9ygTVE+QBqA3d/RS/Ee51guQOmzjra4rXBAoGBANa2\n" +
+                "p9vofNdXeTWkyVQiqFV81c81wnjF7ZWD0FMW9q+udldBcFyQ1DVdbr9xdwUTAk+7\n" +
+                "oCPZIQPp2I50rOFxP2Au6Nu+yBKbPeKwjrsdG805pvpxqr+C2fVNzYaPQQsazqSo\n" +
+                "xIns6YFpbBV75QiICfE40zOVlCIpHz4njNwVtewpAoGATMpYUCng6K8iLwaFdydG\n" +
+                "WHilUs/4kL7wcCjfgKw/A3/41Ad4omO9pBnYp1BDvtyqKWX8xVC2tblSNqQg8t36\n" +
+                "+XNAcrkWqC0kUsVHhqyU6ZX28EWcw2AFOd8aC/fm2gY91urkUmqaoTb9th+2oGUe\n" +
+                "kt9nnNhSQvh7J0euydnBOoECgYAf26I0Yt6DJRt69iRZM3s+k/M1d4iPWu7RjGlQ\n" +
+                "qsuXbY9pivAdC/AwqthP14oNWrCxG+m65/CaIAxdtrogCSmaH9u1Hy2YdShNhlzn\n" +
+                "Ln59iNxZtJvdJpEocI7aNE82Upfunovq2xgad4Xt+iAVj/nJrODJepwsJWXZVwzz\n" +
+                "atU/YQKBgEEqHDBgAaWrJUeTRc2arbJgO9F7+2K99qoK46IvdeCgvHHwE6ClZX/h\n" +
+                "EhSJC5coA9g0pab+ASZ7lyGt8ce2SYmJkZ/e0XTQQlFqoxPhcVfjpR+Bpd6iZhPu\n" +
+                "rUzXoDER1Wm3jnlGvDNvQFMuW/cQyzOrwBanPlfSGrvDLl5PTErZ\n" +
                 "-----END RSA PRIVATE KEY-----\n"
 
             try {
                 const decryptedFiles = await Promise.all(
                     files.map(async (f) => {
-                        console.log(`Encrypted key (Base64): ${f.key}`);
                         const decryptedKey = await cryptoService.decryptAesKey(pk, f.key);
-                        console.log(`Decrypted key for ${f.name}:`, decryptedKey);
                         return {...f, key: decryptedKey};
                     })
                 );
