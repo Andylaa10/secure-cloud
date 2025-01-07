@@ -1,7 +1,7 @@
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using File = secure_cloud_api.Core.Entities.File;
-
+using secure_cloud_api.Core.Entities;
 
 namespace secure_cloud_api.Core.Helpers;
 
@@ -24,13 +24,22 @@ public class DatabaseContext : DbContext
     {
         #region Setup DB
 
-        //Auto generate id
+        // Auto generate id
         modelBuilder.Entity<File>().Property(f => f.Id).ValueGeneratedOnAdd();
-        //Key has to be unique
+        modelBuilder.Entity<SharedFile>().Property(sf => sf.Id).ValueGeneratedOnAdd();
+
+        // Key has to be unique
         modelBuilder.Entity<File>().HasIndex(f => f.Key).IsUnique();
+
+        // Setup relationship
+        modelBuilder.Entity<SharedFile>()
+            .HasOne(sf => sf.File)
+            .WithMany(f => f.SharedWith)
+            .HasForeignKey(sf => sf.FileId);
 
         #endregion
     }
-    
+
     public DbSet<File> Files { get; set; }
- }
+    public DbSet<SharedFile> SharedFiles { get; set; }
+}

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using AutoMapper;
 using secure_cloud_api.Core.Repositories.Interfaces;
 using secure_cloud_api.Core.Services.DTOs;
@@ -47,19 +44,14 @@ public class FileService : IFileService
         {
             throw new ArgumentException(e.Message);
         }
-        
-    }
-    
-    public Task<IEnumerable<GetFileDto>> GetSharedFiles(Guid id)
-    {
-        throw new NotImplementedException(); //TODO 
+
     }
 
     public async Task<GetFileDto> AddFile(CreateFileDto dto)
     {
         try
         {
-            
+
             var file = _mapper.Map<GetFileDto>(await _fileRepository.AddFile(_mapper.Map<File>(dto)));
             return file;
         }
@@ -73,7 +65,7 @@ public class FileService : IFileService
     {
         if (id == Guid.Empty)
             throw new ArgumentException("Id can't be empty");
-        
+
         try
         {
             var file = _mapper.Map<GetFileDto>(await _fileRepository.DeleteFile(id));
@@ -83,7 +75,7 @@ public class FileService : IFileService
         {
             throw new ArgumentException(e.Message);
         }
-        
+
     }
 
     public async Task RebuildDatabase()

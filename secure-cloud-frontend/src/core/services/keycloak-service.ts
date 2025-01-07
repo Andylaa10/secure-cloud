@@ -137,6 +137,20 @@ export class KeycloakService {
         return null;
     }
 
+    async getAllUsers(token: string) {
+        const result = await this.api.get(`admin/realms/master/users`, {
+            headers: {
+                Authorization: `bearer ${token}`
+            }
+        });
+
+        if (result.status === 200) {
+            return result.data;
+        }
+
+        return null;
+    }
+
     /**
      * Set up a new password for the user.
      * @param accessToken
@@ -163,7 +177,7 @@ export class KeycloakService {
         return result;
     }
 
-    async logout(userId: string){
+    async logout(userId: string) {
         const token = await this.getToken();
         if (token) {
             return await this.api.post(`admin/realms/master/users/${userId}/logout`, {}, {

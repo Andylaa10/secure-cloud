@@ -49,7 +49,12 @@ const downloadFile = async (aesKey: string, encryptedFileBase64: string, encrypt
     }
 };
 
-
+const shareFile = async (): Promise<void> => {
+    try { /* empty */ }
+    catch (error) {
+        console.error('File download error:', error);
+    }
+};
 
 export const columns: ColumnDef<File>[] = [
     {
@@ -95,7 +100,9 @@ export const columns: ColumnDef<File>[] = [
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem className="w-full flex items-center justify-between">
+                        <DropdownMenuItem onClick={async () => {
+                            await shareFile();
+                        }} className="w-full flex items-center justify-between">
                             <span>Share file</span>
                             <ShareIcon className="h-4 w-4"></ShareIcon>
                         </DropdownMenuItem>
