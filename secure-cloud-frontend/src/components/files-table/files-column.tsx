@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu.tsx";
 import {File} from "@/core/models/file.model.ts";
 import {CryptoService} from "@/core/services/crypto-service.ts";
+import {SharedFileService} from "@/core/services/shared-file-service.ts";
 
 function base64ToArrayBuffer(base64: string) {
     const binaryString = atob(base64);  // Decode Base64 to binary string
@@ -50,9 +51,17 @@ const downloadFile = async (aesKey: string, encryptedFileBase64: string, encrypt
 };
 
 const shareFile = async (): Promise<void> => {
-    try { /* empty */ }
+    try {
+        // TODO WORK IN PROGRESS
+        const sharedFileService = new SharedFileService();
+
+        await sharedFileService.shareFile({
+            fileId: 'fileId',
+            userId: 'userId',
+        });
+    }
     catch (error) {
-        console.error('File download error:', error);
+        console.error('Error sharing file: ', error);
     }
 };
 
