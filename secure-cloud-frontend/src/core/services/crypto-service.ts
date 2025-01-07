@@ -4,6 +4,10 @@ export class CryptoService {
 
     async generateKeyPair() {
         const rsaKeyPair = forge.pki.rsa.generateKeyPair({bits: 2048});
+
+        console.log(rsaKeyPair.privateKey);
+        console.log(rsaKeyPair.publicKey);
+
         const publicKeyPem = forge.pki.publicKeyToPem(rsaKeyPair.publicKey);
         const privateKeyPem = forge.pki.privateKeyToPem(rsaKeyPair.privateKey);
 
