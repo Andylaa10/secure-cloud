@@ -32,7 +32,7 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
             {sidebarContext.open
                 ?
                 <SidebarHeader className="flex justify-center items-center h-40">
-                    <img src={"../src/assets/logo.png"} alt="logo"/>
+                    <img src={"../src/assets/Logo.png"} alt="logo"/>
                 </SidebarHeader>
                 :
                 <div></div>

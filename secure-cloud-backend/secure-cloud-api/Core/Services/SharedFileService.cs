@@ -8,10 +8,10 @@ namespace secure_cloud_api.Core.Services;
 
 public class SharedFileService : ISharedFileService
 {
-    private readonly IShareFileRepository _shareFileRepository;
+    private readonly ISharedFileRepository _shareFileRepository;
     private readonly IMapper _mapper;
 
-    public SharedFileService(IShareFileRepository shareFileRepository, IMapper mapper)
+    public SharedFileService(ISharedFileRepository shareFileRepository, IMapper mapper)
     {
         _shareFileRepository = shareFileRepository;
         _mapper = mapper;
