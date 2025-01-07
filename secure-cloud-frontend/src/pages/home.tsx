@@ -20,7 +20,13 @@ import {zodResolver} from "@hookform/resolvers/zod"
 import {useForm} from "react-hook-form"
 import {z} from "zod"
 import {Form, FormControl, FormField, FormItem, FormLabel} from "@/components/ui/form"
-import {CopyIcon, EyeIcon, EyeOffIcon, FolderPlusIcon} from "lucide-react";
+import {
+  CheckCircle2Icon,
+  CopyIcon,
+  EyeIcon,
+  EyeOffIcon,
+  FolderPlusIcon
+} from "lucide-react";
 import {Toaster} from "@/components/ui/toaster.tsx";
 import {useToast} from "@/hooks/use-toast.ts";
 import {Input} from "@/components/ui/input.tsx";
@@ -102,6 +108,13 @@ export default function Home() {
       };
 
       await fileService.uploadFile(token, dto);
+      await handleGetFiles();
+
+      toast({
+        icon: <CheckCircle2Icon className="text-green-600"/>,
+        title: "Uploaded Successfully!",
+        subTitle: file.name
+      });
 
     } catch (error) {
       console.error("Error during file upload:", error);
