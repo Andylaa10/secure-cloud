@@ -21,6 +21,13 @@ public class SharedFileController : ControllerBase
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetAllSharedFilesByUserId(string userId)
     {
+        var tokenIsValid = HttpContext.Items["TokenIsValid"] as bool? ?? false;
+
+        if (!tokenIsValid)
+        {
+            return Unauthorized("Token is invalid or expired.");
+        }
+
         try
         {
             var sharedFiles = await _sharedFileService.GetAllSharedFilesByUserId(userId);
@@ -38,6 +45,13 @@ public class SharedFileController : ControllerBase
     [HttpGet("file/{fileId}/users")]
     public async Task<IActionResult> GetSharedUsersByFileId(Guid fileId)
     {
+        var tokenIsValid = HttpContext.Items["TokenIsValid"] as bool? ?? false;
+
+        if (!tokenIsValid)
+        {
+            return Unauthorized("Token is invalid or expired.");
+        }
+
         try
         {
             var sharedUsers = await _sharedFileService.GetSharedUsersByFileId(fileId);
@@ -55,6 +69,13 @@ public class SharedFileController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> ShareFile([FromBody] CreateSharedFileDto dto)
     {
+        var tokenIsValid = HttpContext.Items["TokenIsValid"] as bool? ?? false;
+
+        if (!tokenIsValid)
+        {
+            return Unauthorized("Token is invalid or expired.");
+        }
+
         try
         {
             var sharedFile = await _sharedFileService.ShareFile(dto);
@@ -72,6 +93,13 @@ public class SharedFileController : ControllerBase
     [HttpDelete("{sharedFileId}")]
     public async Task<IActionResult> UnshareFile(Guid sharedFileId)
     {
+        var tokenIsValid = HttpContext.Items["TokenIsValid"] as bool? ?? false;
+
+        if (!tokenIsValid)
+        {
+            return Unauthorized("Token is invalid or expired.");
+        }
+
         try
         {
             var unsharedFile = await _sharedFileService.UnshareFile(sharedFileId);
