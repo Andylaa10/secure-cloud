@@ -12,13 +12,16 @@ public static class DependencyInjectionConfig
     {
         // DB
         services.AddDbContext<DatabaseContext>();
-        
+
         // Dependency Injection
         services.AddScoped<IFileRepository, FileRepository>();
         services.AddScoped<IFileService, FileService>();
-        
+
+        services.AddScoped<ISharedFileRepository, SharedFileRepository>();
+        services.AddScoped<ISharedFileService, SharedFileService>();
+
         // AutoMapper
         services.AddSingleton(AutoMapperConfig.ConfigureAutoMapper());
     }
-    
+
 }

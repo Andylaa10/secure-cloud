@@ -5,9 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="372d487a-6c88-4621-afee-2dd55da4aef9" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/secure-cloud-frontend/src/core/atoms/rsa-atom.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/secure-cloud-frontend/src/core/atoms/rsa-public-key-atom.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/secure-cloud-frontend/src/utils/ArrayBufferToBase64.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/secure-cloud-frontend/src/utils/CopyToClipboard.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-cloud-frontend/src/components/ui/toaster.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-frontend/src/components/ui/toaster.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secure-cloud-frontend/src/hooks/use-toast.ts" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-frontend/src/hooks/use-toast.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/secure-cloud-frontend/src/core/services/crypto-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-frontend/src/core/services/crypto-service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/secure-cloud-frontend/src/pages/home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/secure-cloud-frontend/src/pages/home.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
