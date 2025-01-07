@@ -1,4 +1,4 @@
-import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles,} from "lucide-react"
+import {BadgeCheck, ChevronsUpDown, LogOut,} from "lucide-react"
 
 import {Avatar, AvatarFallback, AvatarImage,} from "@/components/ui/avatar"
 import {
@@ -15,17 +15,24 @@ import {KeyCloakUser} from "@/core/models/user.model"
 import {Skeleton} from "./ui/skeleton"
 import {KeycloakService} from "@/core/services/keycloak-service.ts";
 import {useNavigate} from "react-router-dom";
+import {useAtom} from "jotai/index";
+import {TokenAtom} from "@/core/atoms/token-atom.ts";
+import {UserAtom} from "@/core/atoms/user-atom.ts";
 
 export function NavUser({user}: { user: KeyCloakUser | null }) {
     const {isMobile} = useSidebar();
     const keyCloakService = new KeycloakService();
     const navigate = useNavigate();
+    const [,setTokenAtom] = useAtom(TokenAtom);
+    const [, setUserAtom] = useAtom(UserAtom);
 
 
     async function logOut() {
         if (user) {
-            console.log("logOut");
             await keyCloakService.logout(user.sub);
+            localStorage.clear();
+            setTokenAtom("");
+            setUserAtom(null);
             navigate('/sign-up');
         }
     }
@@ -68,26 +75,10 @@ export function NavUser({user}: { user: KeyCloakUser | null }) {
                                 </div>
                             </div>
                         </DropdownMenuLabel>
-                        <DropdownMenuSeparator/>
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <Sparkles/>
-                                Upgrade to Pro
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator/>
                         <DropdownMenuGroup>
                             <DropdownMenuItem>
                                 <BadgeCheck/>
                                 Account
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <CreditCard/>
-                                Billing
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Bell/>
-                                Notifications
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator/>

@@ -17,6 +17,7 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .idea/git_toolbox_blame.xml
+ .idea/workspace.xml
 .DS_Store
 *.suo
 *.ntvs*
