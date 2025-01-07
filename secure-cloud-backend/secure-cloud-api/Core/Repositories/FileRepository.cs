@@ -25,18 +25,24 @@ public class FileRepository : IFileRepository
             .Where(s => files.Select(f => f.Id).Contains(s.FileId))
             .ToListAsync();
 
-        var fileKeyMap = sharedFiles.ToDictionary(s => s.FileId, s => s.EncryptedKey);
+        var fileKeyMap = sharedFiles
+            .GroupBy(s => s.FileId)
+            .ToDictionary(g => g.Key, g => g.First().EncryptedKey);
 
         foreach (var file in files)
         {
             if (fileKeyMap.TryGetValue(file.Id, out var encryptedKey))
             {
-                keysFiles.TryAdd(encryptedKey, file);
+                if (!keysFiles.TryAdd(encryptedKey, file))
+                {
+                    Console.WriteLine($"Duplicate encrypted key detected: {encryptedKey}");
+                }
             }
         }
 
         return keysFiles;
     }
+
 
 
     public async Task<File> GetFileById(Guid id)

@@ -37,6 +37,7 @@ import {base64ToArrayBuffer} from "@/utils/base64-to-array-buffer.ts";
 import {ShareFileDTO} from "@/core/dtos/shareFileDTO.ts";
 import {FileShareService} from "@/core/services/file-share-service.ts";
 import {File} from "@/core/models/file.model.ts";
+import {files_columns} from "@/components/files-table/files-column.tsx";
 
 export default function Home() {
     const [token] = useAtom(TokenAtom);
@@ -169,8 +170,8 @@ export default function Home() {
 
     const handleKeyPair = async () => {
         if (user) {
-            const test = await keyCloakService.getUserByUsername(user.preferred_username, token);
-            if (!test[0]['attributes']) {
+            const customUser = await keyCloakService.getUserByUsername(user.preferred_username, token);
+            if (!customUser[0]['attributes']) {
                 const {publicKeyPem, privateKeyPem} = await cryptoService.generateKeyPair();
 
                 const dto: UpdateUserDTO = {
@@ -180,14 +181,14 @@ export default function Home() {
                     lastName: user.family_name,
                     publicKey: publicKeyPem,
                 }
-                await keyCloakService.updateUserPublicKey(token, test[0].id, dto);
+                await keyCloakService.updateUserPublicKey(token, customUser[0].id, dto);
 
                 setIsKeyPairDialogOpen(true);
                 setRsaPublicKey(publicKeyPem);
                 setRsa(privateKeyPem);
             } else if (rsa === "" || rsaPublicKey === "") {
                 setIsPkDialogOpen(true);
-                setRsaPublicKey(test[0]['attributes']['publicKey']);
+                setRsaPublicKey(customUser[0].attributes['publicKey'][0]);
             }
         }
     }
@@ -228,7 +229,7 @@ export default function Home() {
 
             <div className="container mx-auto py-10">
                 {myFiles && (
-                    <MyFilesTable data={myFiles}/>
+                    <MyFilesTable columns={files_columns} data={myFiles}/>
                 )}
             </div>
 

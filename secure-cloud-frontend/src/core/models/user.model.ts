@@ -24,7 +24,7 @@ export interface KeyCloakCustomUser {
     manageGroupMembership: boolean;
     mapRoles: boolean;
     view: boolean;
-    attributes: any[]
+    attributes: any[];
     createdTimestamp: number;
     email: string;
     emailVerified: boolean;

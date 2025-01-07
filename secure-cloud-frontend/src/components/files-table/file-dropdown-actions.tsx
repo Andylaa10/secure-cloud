@@ -31,6 +31,7 @@ import {UploadFileDTO} from "@/core/dtos/uploadFileDTO.ts";
 import {arrayBufferToBase64} from "@/utils/array-buffer-to-base64.ts";
 import {UserAtom} from "@/core/atoms/user-atom.ts";
 import {FileShareService} from "@/core/services/file-share-service.ts";
+import {ShareFileDTO} from "@/core/dtos/shareFileDTO.ts";
 
 type FileDropdownActionsProps = {
     row: Row<File>;
@@ -38,8 +39,7 @@ type FileDropdownActionsProps = {
 
 export default function FileDropdownActions({row}: FileDropdownActionsProps): JSX.Element {
     const cryptoService = new CryptoService();
-    const fileService = new FileService();
-    const sharedFileService = new FileShareService();
+    const fileShareService = new FileShareService();
     const keyCloakService = new KeycloakService();
 
     const [token] = useAtom(TokenAtom);
@@ -69,39 +69,26 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
         }
     };
 
-    const shareFile = async (file: File): Promise<void> => {
-    //     try {
-    //         const aesKey = await cryptoService.generateAesKey();
-    //         const {encryptedFile, ivBytes} = await cryptoService.encryptFile(aesKey, file.content as ArrayBuffer);
-    //         //Cannot go in here if a user is not selected
-    //         const encryptedAesKey = await cryptoService.encryptAesKey(selectedUser!.attributes['publicKey'], aesKey);
-    //
-    //         const dto: UploadFileDTO = {
-    //             ownerDisplayName: file!.ownerDisplayName,
-    //             name: file!.name,
-    //             content: arrayBufferToBase64(encryptedFile),
-    //             contentType: file!.name.split(".").pop() ?? "unknown",
-    //             key: encryptedAesKey,
-    //             ownerId: file!.ownerId,
-    //             iv: arrayBufferToBase64(ivBytes)
-    //         };
-    //
-    //         const createdFile = await fileService.uploadFile(token, dto);
-    //
-    //         if (createdFile) {
-    //             const sharedFileDTO: CreateSharedFileDTO = {
-    //                 fileId: createdFile.file.id,
-    //                 sharedWithUserId: user!.sub
-    //             }
-    //
-    //             const sharedFile = await sharedFileService.shareFile(sharedFileDTO, token);
-    //             console.log(sharedFile);
-    //         }
-    //     }
-    //     catch (error) {
-    //         console.error('Error sharing file: ', error);
-    //     }
-    //     closeSharedDialog();
+    const shareFile = async (fileId: string): Promise<void> => {
+        try {
+            const aesKey = await cryptoService.generateAesKey();
+            //Cannot go in here if a user is not selected
+            console.log(selectedUser!.attributes['publicKey'][0])
+            const encryptedAesKey = await cryptoService.encryptAesKey(selectedUser!.attributes['publicKey'][0], aesKey);
+
+            const shareFileDTO: ShareFileDTO = {
+                fileId: fileId,
+                encryptedKey: encryptedAesKey,
+                OwnerDisplayName: user!.preferred_username,
+                sharedWithUserId: selectedUser!.id,
+            };
+
+            await fileShareService.shareFile(shareFileDTO, token)
+        }
+        catch (error) {
+            console.error('Error sharing file: ', error);
+        }
+        closeSharedDialog();
     };
 
     useEffect(() => {
@@ -138,7 +125,7 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
 
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <Button variant="outline" disabled={!selectedUser} onClick={async () => await shareFile(row.original)}>Share</Button>
+                        <Button variant="outline" disabled={!selectedUser} onClick={async () => await shareFile(row.original.id)}>Share</Button>
                         <AlertDialogAction
                             className="hover: select-none shadow-lg transform active:scale-75 transition-transform"
                             onClick={() => {

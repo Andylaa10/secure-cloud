@@ -21,21 +21,26 @@ public class FileService : IFileService
         try
         {
             var keysGetFileDto = new Dictionary<string, GetFileDto>();
-            
             var keysFiles = await _fileRepository.GetAllFilesByOwnerId(ownerId);
 
             foreach (var key in keysFiles)
             {
-                keysGetFileDto.Add(key.Key, _mapper.Map<GetFileDto>(key.Value));
+                if (!keysGetFileDto.TryAdd(key.Key, _mapper.Map<GetFileDto>(key.Value)))
+                {
+                    Console.WriteLine($"Duplicate key detected: {key.Key}");
+                }
             }
-            
+
             return keysGetFileDto;
         }
         catch (Exception e)
         {
-            throw new ArgumentException(e.Message);
+            Console.WriteLine($"Error processing files: {e.Message}");
+            throw new ArgumentException($"Error processing files: {e.Message}");
         }
     }
+
+
 
     public async Task<GetFileDto> GetFileById(Guid id)
     {

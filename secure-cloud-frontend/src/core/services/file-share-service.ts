@@ -12,8 +12,8 @@ export class FileShareService {
      * @param userId
      * @param accessToken
      */
-    async getAllSharedFilesByUserId(userId: string, accessToken: string): Promise<File[]> {
-        const response = await this.api.get<File[]>(`FileShare/user/${userId}`, {
+    async getAllSharedFilesByUserId(userId: string, accessToken: string): Promise<Map<string, File>> {
+        const response = await this.api.get<Map<string, File>>(`FileShare/user/${userId}`, {
             headers: {
                 "Authorization": `Bearer ${accessToken}`
             }

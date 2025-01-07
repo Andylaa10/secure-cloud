@@ -17,19 +17,29 @@ public class FileShareService : IFileShareService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<GetFileShareDto>> GetAllSharedFilesByUserId(string userId)
+    public async Task<Dictionary<string, GetFileDto>> GetAllSharedFilesByUserId(string userId)
     {
         if (string.IsNullOrWhiteSpace(userId))
             throw new ArgumentException("User ID cannot be null or empty");
-
         try
         {
-            var sharedFiles = await _shareFileShareRepository.GetAllSharedFilesByUserId(userId);
-            return _mapper.Map<IEnumerable<GetFileShareDto>>(sharedFiles);
+            var keysGetFileDto = new Dictionary<string, GetFileDto>();
+            var keysFiles = await _shareFileShareRepository.GetAllSharedFilesByUserId(userId);
+
+            foreach (var key in keysFiles)
+            {
+                if (!keysGetFileDto.TryAdd(key.Key, _mapper.Map<GetFileDto>(key.Value)))
+                {
+                    Console.WriteLine($"Duplicate key detected: {key.Key}");
+                }
+            }
+
+            return keysGetFileDto;
         }
         catch (Exception e)
         {
-            throw new ArgumentException(e.Message);
+            Console.WriteLine($"Error processing files: {e.Message}");
+            throw new ArgumentException($"Error processing files: {e.Message}");
         }
     }
 

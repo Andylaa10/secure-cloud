@@ -27,12 +27,11 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<File>().Property(f => f.Id).ValueGeneratedOnAdd();
         modelBuilder.Entity<FileShare>().Property(sf => sf.Id).ValueGeneratedOnAdd();
         
-        // Setup relationship
+        // Setup relationship & Cascade delete
         modelBuilder.Entity<FileShare>()
             .HasOne(sf => sf.File)
             .WithMany(f => f.SharedWith)
-            .HasForeignKey(sf => sf.FileId);
-
+            .HasForeignKey(sf => sf.FileId).OnDelete(DeleteBehavior.Cascade);
         #endregion
     }
 

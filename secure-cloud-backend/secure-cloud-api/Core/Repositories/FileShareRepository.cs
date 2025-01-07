@@ -15,12 +15,32 @@ public class FileShareRepository : IFileShareRepository
     }
 
     // Get all shared files for a specific user
-    public async Task<IEnumerable<FileShare>> GetAllSharedFilesByUserId(string userId)
+    public async Task<Dictionary<string, File>> GetAllSharedFilesByUserId(string userId)
     {
-        return await _context.SharedFiles
+        var keysFiles = new Dictionary<string, File>();
+
+        var files = await _context.Files
+            .ToListAsync();
+        
+        var fileshares = await _context.SharedFiles
             .Where(sharedFile => sharedFile.SharedWithUserId == userId)
             .Include(sf => sf.File)
             .ToListAsync();
+        
+        var fileKeyMap = fileshares.ToDictionary(s => s.FileId, s => s.EncryptedKey);
+
+        foreach (var file in files)
+        {
+            if (fileKeyMap.TryGetValue(file.Id, out var encryptedKey))
+            {
+                if (!keysFiles.TryAdd(encryptedKey, file))
+                {
+                    Console.WriteLine($"Duplicate encrypted key detected: {encryptedKey}");
+                }
+            }
+        }
+
+        return keysFiles;
     }
 
     // Get all users a file is shared with

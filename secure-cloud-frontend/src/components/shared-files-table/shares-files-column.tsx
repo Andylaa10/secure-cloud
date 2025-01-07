@@ -1,9 +1,25 @@
 import {ColumnDef} from "@tanstack/react-table";
 import {File} from "@/core/models/file.model.ts";
+import {DownloadCloudIcon} from "lucide-react";
 
-import FileDropdownActions from "@/components/files-table/file-dropdown-actions.tsx";
+const downloadFile = async (content: Uint8Array, name: string): Promise<void> => {
+    try {
 
-export const files_columns: ColumnDef<File>[] = [
+        const contentToDownload = new Blob([content], {type: 'application/octet-stream'});
+
+        const url = URL.createObjectURL(contentToDownload);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('File download error:', error);
+    }
+};
+
+export const shared_files_columns: ColumnDef<File>[] = [
     {
         accessorKey: "id",
         header: "ID",
@@ -37,7 +53,9 @@ export const files_columns: ColumnDef<File>[] = [
     {
         id: "actions",
         cell: ({row}) => {
-            return (<FileDropdownActions row={row}/>)
+            return (<DownloadCloudIcon className="h-4 w-4 cursor-pointer"  onClick={async ()=> {
+                await downloadFile(row.original.content as Uint8Array, row.original.name);
+            }}/>)
         },
     },
 ];

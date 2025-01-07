@@ -126,7 +126,7 @@ export class KeycloakService {
         });
     }
 
-    async getUserByUsername(username: string, accessToken: string) {
+    async getUserByUsername(username: string, accessToken: string): Promise<KeyCloakCustomUser[] | null> {
         const result = await this.api.get(`admin/realms/master/users?username=${username}&exact=true`, {
             headers: {
                 Authorization: `bearer ${accessToken}`

@@ -19,7 +19,7 @@ public class FileShareController : ControllerBase
     /// Get all files shared with a specific user.
     /// </summary>
     [HttpGet("user/{userId}")]
-    public async Task<IActionResult> GetAllSharedFilesByUserId([FromRoute]string userId)
+    public async Task<IActionResult> GetAllSharedFilesByUserId([FromRoute] string userId)
     {
         var tokenIsValid = HttpContext.Items["TokenIsValid"] as bool? ?? false;
 
