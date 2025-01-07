@@ -78,7 +78,7 @@ export class KeycloakService {
         // Create user
         const result = await this.api.post(`admin/realms/master/users`, data, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token.access_token}`
             }
         });
 
