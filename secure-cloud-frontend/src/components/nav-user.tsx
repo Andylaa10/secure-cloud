@@ -15,17 +15,24 @@ import {User} from "@/core/models/user.model"
 import {Skeleton} from "./ui/skeleton"
 import {KeycloakService} from "@/core/services/keycloak-service.ts";
 import {useNavigate} from "react-router-dom";
+import {useAtom} from "jotai/index";
+import {TokenAtom} from "@/core/atoms/token-atom.ts";
+import {UserAtom} from "@/core/atoms/user-atom.ts";
 
 export function NavUser({user}: { user: User | null }) {
     const {isMobile} = useSidebar();
     const keyCloakService = new KeycloakService();
     const navigate = useNavigate();
+    const [,setTokenAtom] = useAtom(TokenAtom);
+    const [, setUserAtom] = useAtom(UserAtom);
 
 
     async function logOut() {
         if (user) {
-            console.log("logOut");
             await keyCloakService.logout(user.sub);
+            localStorage.clear();
+            setTokenAtom("");
+            setUserAtom(null);
             navigate('/sign-up');
         }
     }
