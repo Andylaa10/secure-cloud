@@ -83,8 +83,8 @@ public class FileController : ControllerBase
         
         try
         {
-            var result = await _fileService.AddFile(dto);
-            return Ok(new { message = $"File was uploaded successfully", result });
+            var file = await _fileService.AddFile(dto);
+            return Ok(new { message = $"File was uploaded successfully", file });
         }
         catch (Exception e)
         {

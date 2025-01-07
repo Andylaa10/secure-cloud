@@ -17,8 +17,8 @@ public static class DependencyInjectionConfig
         services.AddScoped<IFileRepository, FileRepository>();
         services.AddScoped<IFileService, FileService>();
 
-        services.AddScoped<ISharedFileRepository, SharedFileRepository>();
-        services.AddScoped<ISharedFileService, SharedFileService>();
+        services.AddScoped<IFileShareRepository, FileShareRepository>();
+        services.AddScoped<IFileShareService, FileShareService>();
 
         // AutoMapper
         services.AddSingleton(AutoMapperConfig.ConfigureAutoMapper());

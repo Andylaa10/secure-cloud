@@ -1,21 +1,21 @@
 using Microsoft.EntityFrameworkCore;
-using secure_cloud_api.Core.Entities;
 using secure_cloud_api.Core.Helpers;
 using secure_cloud_api.Core.Repositories.Interfaces;
+using FileShare = secure_cloud_api.Core.Entities.FileShare;
 
 namespace secure_cloud_api.Core.Repositories;
 
-public class SharedFileRepository : ISharedFileRepository
+public class FileShareRepository : IFileShareRepository
 {
     private readonly DatabaseContext _context;
 
-    public SharedFileRepository(DatabaseContext context)
+    public FileShareRepository(DatabaseContext context)
     {
         _context = context;
     }
 
     // Get all shared files for a specific user
-    public async Task<IEnumerable<SharedFile>> GetAllSharedFilesByUserId(string userId)
+    public async Task<IEnumerable<FileShare>> GetAllSharedFilesByUserId(string userId)
     {
         return await _context.SharedFiles
             .Where(sharedFile => sharedFile.SharedWithUserId == userId)
@@ -24,7 +24,7 @@ public class SharedFileRepository : ISharedFileRepository
     }
 
     // Get all users a file is shared with
-    public async Task<IEnumerable<SharedFile>> GetSharedUsersByFileId(Guid fileId)
+    public async Task<IEnumerable<FileShare>> GetUsersOnSharedFile(Guid fileId)
     {
         return await _context.SharedFiles
             .Where(sharedFile => sharedFile.FileId == fileId)
@@ -32,15 +32,14 @@ public class SharedFileRepository : ISharedFileRepository
     }
 
     // Share a file with a user
-    public async Task<SharedFile> ShareFile(SharedFile sharedFile)
+    public async Task ShareFile(FileShare sharedFile)
     {
         await _context.SharedFiles.AddAsync(sharedFile);
         await _context.SaveChangesAsync();
-        return sharedFile;
     }
 
     // Remove a shared file from a user
-    public async Task<SharedFile> UnshareFile(Guid sharedFileId)
+    public async Task RemoveUserFromFile(Guid sharedWithUserId, Guid sharedFileId)
     {
         var sharedFile = await _context.SharedFiles.FirstOrDefaultAsync(sf => sf.Id == sharedFileId);
 
@@ -51,7 +50,5 @@ public class SharedFileRepository : ISharedFileRepository
 
         _context.SharedFiles.Remove(sharedFile);
         await _context.SaveChangesAsync();
-
-        return sharedFile;
     }
 }

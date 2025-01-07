@@ -10,7 +10,6 @@ public class GetFileDto
     public string ContentType { get; set; }
     public string OwnerDisplayName { get; set; }
     public string OwnerId { get; set; }
-    public string Key { get; set; }
     public DateTime CreatedAt { get; set; }
     public Byte[] IV { get; set; }
 }

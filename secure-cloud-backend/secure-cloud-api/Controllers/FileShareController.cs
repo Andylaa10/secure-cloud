@@ -6,20 +6,20 @@ namespace secure_cloud_api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SharedFileController : ControllerBase
+public class FileShareController : ControllerBase
 {
-    private readonly ISharedFileService _sharedFileService;
+    private readonly IFileShareService _fileShareService;
 
-    public SharedFileController(ISharedFileService sharedFileService)
+    public FileShareController(IFileShareService fileShareService)
     {
-        _sharedFileService = sharedFileService;
+        _fileShareService = fileShareService;
     }
 
     /// <summary>
     /// Get all files shared with a specific user.
     /// </summary>
     [HttpGet("user/{userId}")]
-    public async Task<IActionResult> GetAllSharedFilesByUserId(string userId)
+    public async Task<IActionResult> GetAllSharedFilesByUserId([FromRoute]string userId)
     {
         var tokenIsValid = HttpContext.Items["TokenIsValid"] as bool? ?? false;
 
@@ -30,7 +30,7 @@ public class SharedFileController : ControllerBase
 
         try
         {
-            var sharedFiles = await _sharedFileService.GetAllSharedFilesByUserId(userId);
+            var sharedFiles = await _fileShareService.GetAllSharedFilesByUserId(userId);
             return Ok(sharedFiles);
         }
         catch (Exception ex)
@@ -43,7 +43,7 @@ public class SharedFileController : ControllerBase
     /// Get all users a file is shared with.
     /// </summary>
     [HttpGet("file/{fileId}/users")]
-    public async Task<IActionResult> GetSharedUsersByFileId(Guid fileId)
+    public async Task<IActionResult> GetUsersOnSharedFile(Guid fileId)
     {
         var tokenIsValid = HttpContext.Items["TokenIsValid"] as bool? ?? false;
 
@@ -54,7 +54,9 @@ public class SharedFileController : ControllerBase
 
         try
         {
-            var sharedUsers = await _sharedFileService.GetSharedUsersByFileId(fileId);
+            
+            //TODO list of usernames
+            var sharedUsers = await _fileShareService.GetUsersOnSharedFile(fileId);
             return Ok(sharedUsers);
         }
         catch (Exception ex)
@@ -78,8 +80,8 @@ public class SharedFileController : ControllerBase
 
         try
         {
-            var sharedFile = await _sharedFileService.ShareFile(dto);
-            return CreatedAtAction(nameof(GetSharedUsersByFileId), new { fileId = sharedFile.FileId }, sharedFile);
+            await _fileShareService.ShareFile(dto);
+            return StatusCode(201,"Successfully shared");
         }
         catch (Exception ex)
         {
@@ -90,8 +92,8 @@ public class SharedFileController : ControllerBase
     /// <summary>
     /// Unshare a file from a specific user.
     /// </summary>
-    [HttpDelete("{sharedFileId}")]
-    public async Task<IActionResult> UnshareFile(Guid sharedFileId)
+    [HttpDelete("{sharedWithUserId}/{sharedFileId}")]
+    public async Task<IActionResult> RemoveUserFromFile([FromRoute] string sharedWithUserId, [FromRoute] string sharedFileId)
     {
         var tokenIsValid = HttpContext.Items["TokenIsValid"] as bool? ?? false;
 
@@ -102,8 +104,8 @@ public class SharedFileController : ControllerBase
 
         try
         {
-            var unsharedFile = await _sharedFileService.UnshareFile(sharedFileId);
-            return Ok(unsharedFile);
+            await _fileShareService.RemoveUserFromFile(new Guid(sharedWithUserId),new Guid(sharedFileId));
+            return Ok("Successfully remove user");
         }
         catch (Exception ex)
         {

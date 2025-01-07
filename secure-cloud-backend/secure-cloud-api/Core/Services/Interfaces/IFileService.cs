@@ -4,7 +4,7 @@ namespace secure_cloud_api.Core.Services.Interfaces;
 
 public interface IFileService
 {
-    public Task<IEnumerable<GetFileDto>> GetAllFilesByOwnerId(Guid ownerId);
+    public Task<Dictionary<string, GetFileDto>> GetAllFilesByOwnerId(Guid ownerId);
     public Task<GetFileDto> GetFileById(Guid id);
     public Task<GetFileDto> AddFile(CreateFileDto dto);
     public Task<GetFileDto> DeleteFile(Guid id);

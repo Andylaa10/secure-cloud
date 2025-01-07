@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using secure_cloud_api.Core.Helpers;
 using secure_cloud_api.Core.Repositories.Interfaces;
-using File = secure_cloud_api.Core.Entities.File;
 
 namespace secure_cloud_api.Core.Repositories;
 
@@ -14,22 +13,36 @@ public class FileRepository : IFileRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<File>> GetAllFilesByOwnerId(Guid ownerId)
+    public async Task<Dictionary<string, File>> GetAllFilesByOwnerId(Guid ownerId)
     {
-        return await _context.Files
+        var keysFiles = new Dictionary<string, File>();
+
+        var files = await _context.Files
             .Where(file => file.OwnerId == ownerId.ToString())
             .ToListAsync();
+
+        var sharedFiles = await _context.SharedFiles
+            .Where(s => files.Select(f => f.Id).Contains(s.FileId))
+            .ToListAsync();
+
+        var fileKeyMap = sharedFiles.ToDictionary(s => s.FileId, s => s.EncryptedKey);
+
+        foreach (var file in files)
+        {
+            if (fileKeyMap.TryGetValue(file.Id, out var encryptedKey))
+            {
+                keysFiles.TryAdd(encryptedKey, file);
+            }
+        }
+
+        return keysFiles;
     }
+
 
     public async Task<File> GetFileById(Guid id)
     {
         var file = await _context.Files.FirstOrDefaultAsync(file => file.Id == id);
         return file ?? throw new FileNotFoundException($"No file found with this guid: {id}");
-    }
-
-    public Task<File> GetSharedFiles(Guid id)
-    {
-        throw new NotImplementedException(); // TODO 
     }
 
     public async Task<File> AddFile(File file)

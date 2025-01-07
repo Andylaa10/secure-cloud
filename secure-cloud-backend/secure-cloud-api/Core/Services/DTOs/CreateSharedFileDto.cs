@@ -2,6 +2,8 @@ namespace secure_cloud_api.Core.Services.DTOs;
 
 public class CreateSharedFileDto
 {
-    public Guid FileId { get; set; }
+    public string FileId { get; set; }
     public string SharedWithUserId { get; set; }
+    public string OwnerDisplayName { get; set; }
+    public string EncryptedKey { get; set; }
 }

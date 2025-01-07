@@ -10,9 +10,9 @@ export class FileService {
 
   //TODO GetSharedFiles (how to do that?)
 
-  getAllFilesByOwnerId = async (accessToken: string): Promise<File[] | null> => {
+  getAllFilesByOwnerId = async (accessToken: string): Promise<Map<string, File> | null> => {
     try {
-      const response = await this.api.get(`/file/getByOwnerId`, {
+      const response = await this.api.get<Map<string, File>>(`/file/getByOwnerId`, {
         headers: {
           "Authorization": `Bearer ${accessToken}`
         }
@@ -52,7 +52,7 @@ export class FileService {
     }
   }
 
-  uploadFile = async (accessToken: string, dto: UploadFileDTO) => {
+  uploadFile = async (accessToken: string, dto: UploadFileDTO): Promise<{message: string, file: File} | null> => {
     try{
       const response = await this.api.post('/file/uploadFile', dto, {
         headers: {

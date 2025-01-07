@@ -11,12 +11,12 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,} from "@/components/ui/sidebar"
-import {User} from "@/core/models/user.model"
+import {KeyCloakUser} from "@/core/models/user.model"
 import {Skeleton} from "./ui/skeleton"
 import {KeycloakService} from "@/core/services/keycloak-service.ts";
 import {useNavigate} from "react-router-dom";
 
-export function NavUser({user}: { user: User | null }) {
+export function NavUser({user}: { user: KeyCloakUser | null }) {
     const {isMobile} = useSidebar();
     const keyCloakService = new KeycloakService();
     const navigate = useNavigate();

@@ -2,7 +2,6 @@ using AutoMapper;
 using secure_cloud_api.Core.Repositories.Interfaces;
 using secure_cloud_api.Core.Services.DTOs;
 using secure_cloud_api.Core.Services.Interfaces;
-using File = secure_cloud_api.Core.Entities.File;
 
 namespace secure_cloud_api.Core.Services;
 
@@ -17,12 +16,20 @@ public class FileService : IFileService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<GetFileDto>> GetAllFilesByOwnerId(Guid ownerId)
+    public async Task<Dictionary<string, GetFileDto>> GetAllFilesByOwnerId(Guid ownerId)
     {
         try
         {
-            var files = await _fileRepository.GetAllFilesByOwnerId(ownerId);
-            return _mapper.Map<IEnumerable<GetFileDto>>(files);
+            var keysGetFileDto = new Dictionary<string, GetFileDto>();
+            
+            var keysFiles = await _fileRepository.GetAllFilesByOwnerId(ownerId);
+
+            foreach (var key in keysFiles)
+            {
+                keysGetFileDto.Add(key.Key, _mapper.Map<GetFileDto>(key.Value));
+            }
+            
+            return keysGetFileDto;
         }
         catch (Exception e)
         {

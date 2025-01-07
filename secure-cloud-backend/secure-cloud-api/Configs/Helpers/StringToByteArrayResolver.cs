@@ -1,6 +1,5 @@
 using AutoMapper;
 using secure_cloud_api.Core.Services.DTOs;
-using File = secure_cloud_api.Core.Entities.File;
 
 namespace secure_cloud_api.Configs.Helpers;
 

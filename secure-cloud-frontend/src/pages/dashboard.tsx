@@ -42,9 +42,9 @@ export default function Dashboard() {
 
                     const token = await keyCloakService.getUserToken(code, storedVerifier);
                     console.log(token);
-                    setToken(token["access_token"]);
+                    setToken(token.access_token);
 
-                    const userInfo = await keyCloakService.getUserInfo(token["access_token"]);
+                    const userInfo = await keyCloakService.getUserInfo(token.access_token);
                     setUser(userInfo.data);
 
                     navigate(location.pathname, { replace: true });

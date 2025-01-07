@@ -2,7 +2,7 @@ import {columns} from "@/components/files-table/files-column.tsx";
 import {DataTable} from "@/components/ui/data-table.tsx";
 
 interface TableProps {
-    data: any[]
+    data: Map<string, File>;
 }
 export default function MyFilesTable({data}: TableProps): JSX.Element {
     return (

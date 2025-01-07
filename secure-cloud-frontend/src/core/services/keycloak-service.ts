@@ -1,7 +1,8 @@
 import axios from 'axios';
 import {RegisterDTO} from "@/core/dtos/registerDTO.ts";
-import {User} from '../models/user.model';
+import {KeyCloakCustomUser, KeyCloakUser} from '../models/user.model';
 import {UpdateUserDTO} from "@/core/dtos/updateUserDTO.ts";
+import {Token} from "@/core/models/token.model.ts";
 
 export class KeycloakService {
     clientSecret?: string = import.meta.env.VITE_CLIENT_SECRET;
@@ -14,7 +15,7 @@ export class KeycloakService {
     /**
      * Token for creating new users and passwords
      */
-    async getUserToken(code: string, code_verifier: string): Promise<string> {
+    async getUserToken(code: string, code_verifier: string): Promise<Token> {
         const parameters = {
             grant_type: 'authorization_code',
             code: code,
@@ -32,7 +33,7 @@ export class KeycloakService {
         return await response.json();
     }
 
-    async getToken(): Promise<string | null> {
+    async getToken(): Promise<Token | null> {
         const url = 'realms/master/protocol/openid-connect/token';
         const data = new URLSearchParams();
         data.append('client_id', this.clientId!);
@@ -46,7 +47,7 @@ export class KeycloakService {
                 },
             });
 
-            return response.data['access_token'];
+            return response.data;
 
         } catch (error) {
             console.error('Error fetching token:', error);
@@ -58,8 +59,10 @@ export class KeycloakService {
      * Register a new user and setting the password
      * @param dto
      */
-    async register(dto: RegisterDTO): Promise<User | null> {
+    async register(dto: RegisterDTO): Promise<KeyCloakUser | null> {
         const token = await this.getToken();
+
+        if (!token) return null;
 
         const data = {
             email: dto.email,
@@ -82,9 +85,9 @@ export class KeycloakService {
         if (result.status === 201 && token) {
             // Set the password
             console.log(result);
-            const newUser = await this.getUserByUsername(data.username, token)
+            const newUser = await this.getUserByUsername(data.username, token.access_token)
             if (newUser) {
-                await this.setPassword(token, newUser[0]['id'], dto.password);
+                await this.setPassword(token.access_token, newUser[0]['id'], dto.password);
 
                 return newUser;
             }
@@ -123,10 +126,10 @@ export class KeycloakService {
         });
     }
 
-    async getUserByUsername(username: string, token: string) {
+    async getUserByUsername(username: string, accessToken: string) {
         const result = await this.api.get(`admin/realms/master/users?username=${username}&exact=true`, {
             headers: {
-                Authorization: `bearer ${token}`
+                Authorization: `bearer ${accessToken}`
             }
         });
 
@@ -137,10 +140,10 @@ export class KeycloakService {
         return null;
     }
 
-    async getAllUsers(token: string) {
+    async getAllUsers(accessToken: string): Promise<KeyCloakCustomUser[] | null> {
         const result = await this.api.get(`admin/realms/master/users`, {
             headers: {
-                Authorization: `bearer ${token}`
+                Authorization: `bearer ${accessToken}`
             }
         });
 
@@ -182,7 +185,7 @@ export class KeycloakService {
         if (token) {
             return await this.api.post(`admin/realms/master/users/${userId}/logout`, {}, {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token.access_token}`
                 }
             });
         }
