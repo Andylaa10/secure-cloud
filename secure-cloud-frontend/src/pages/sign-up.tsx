@@ -170,6 +170,13 @@ export default function SignUp() {
                 )}
                 {!isRegisterClicked && (
                     <Button className="w-full" variant="outline" onClick={() => redirect()}>Log in via SSO</Button>)}
+                {isRegisterClicked && (
+                    <Button
+                        variant="outline"
+                        className="w-full" onClick={()=>setIsRegisterClicked(false)}>
+                      Sign In
+                    </Button>
+                )}
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t"></span>

@@ -1,5 +1,5 @@
 import {File} from "@/core/models/file.model.ts";
-import {CheckCircle2Icon, DownloadCloudIcon, MoreHorizontal, ShareIcon, Trash2Icon} from "lucide-react";
+import {CheckCircle2Icon, DeleteIcon, DownloadCloudIcon, MoreHorizontal, ShareIcon, Trash2Icon} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {
     DropdownMenu,
@@ -56,22 +56,24 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
     const [sharedWithUsers, setSharedWithNames] = useState<KeyCloakCustomUser[] | null>(null);
     const [filterUsernames, setFilterUsernames] = useState<KeyCloakCustomUser[] | null>(null);
 
+    const excludeUsers = ["admin", user.preferred_username!];
+
     const handleUserSelect = (user: KeyCloakCustomUser | null) => {
         setSelectedUser(user);
     };
 
     const handleRemoveUser = async (userId: string, fileId: string, username: string) => {
         try {
-            // Call the API to remove the user
             await fileShareService.removeUserFromFile(userId, fileId, token);
 
-            // Update the `sharedWithUsers` list
+            // Update shared users
             const updatedSharedWithUsers = sharedWithUsers?.filter(u => u.username !== username) || [];
             setSharedWithNames(updatedSharedWithUsers);
 
-            // Update `filterUsernames` based on the new state
+            // Update filtered usernames
             const updatedFilteredUsernames = usersFromKeycloak?.filter(
-                user => !updatedSharedWithUsers.some(sharedUser => sharedUser.username === user.username)
+                u => !updatedSharedWithUsers.some(sharedUser => sharedUser.username === u.username) &&
+                    !excludeUsers.includes(u.username)
             ) || [];
             setFilterUsernames(updatedFilteredUsernames);
 
@@ -88,7 +90,6 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
         }
     };
 
-
     const shareFile = async (fileId: string, key: string): Promise<void> => {
         try {
             const encryptedAesKey = await cryptoService.encryptAesKey(selectedUser!.attributes['publicKey'][0], key);
@@ -101,19 +102,18 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
                 sharedWithUserDisplayName: selectedUser!.username,
             };
 
-            await fileShareService.shareFile(shareFileDTO, token)
+            await fileShareService.shareFile(shareFileDTO, token);
 
             toast({
                 icon: <CheckCircle2Icon className="text-green-600"/>,
                 title: "File is shared successfully!",
-                subTitle: selectedUser!.username + " can now access the file.",
+                subTitle: `${selectedUser!.username} can now access the file.`,
             });
         } catch (error) {
-            console.error('Error sharing file: ', error);
+            console.error("Error sharing file:", error);
         }
         closeSharedDialog();
     };
-
 
     useEffect(() => {
         if (isSharedDialogOpen && !usersFromKeycloak) {
@@ -127,12 +127,16 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
 
     useEffect(() => {
         if (isSharedDialogOpen && usersFromKeycloak && usernames) {
+            // Exclude users already on the file and in excludeUsers
             const filteredUsers = usersFromKeycloak.filter(
-                u => !usernames.includes(u.username));
+                u => !usernames.includes(u.username) && !excludeUsers.includes(u.username)
+            );
             setFilterUsernames(filteredUsers);
 
+            // Set shared users, excluding `admin` and `user.preferred_username`
             const sharedWithUsers = usersFromKeycloak.filter(
-                u => usernames.includes(u.username) && u.username !== 'admin' && u.username !== user!.preferred_username);
+                u => usernames.includes(u.username) && !excludeUsers.includes(u.username)
+            );
             setSharedWithNames(sharedWithUsers);
         }
     }, [isSharedDialogOpen, usersFromKeycloak, usernames]);
@@ -140,16 +144,17 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
     const closeSharedDialog = () => {
         setIsSharedDialogOpen(false);
         setTimeout(() => {
-            document.body.style.pointerEvents = 'auto';
+            document.body.style.pointerEvents = "auto";
         }, 500);
-    }
+    };
 
     const openShareDialog = async (id: string) => {
         setIsSharedDialogOpen(true);
-        const usernamesOnFile = await fileShareService.getUsersOnSharedFile(id, token);
-        const updateUsernamesOnFile = [...usernamesOnFile, 'admin']
-        setUsernames(updateUsernamesOnFile);
-    }
+        let usernamesOnFile = await fileShareService.getUsersOnSharedFile(id, token);
+        usernamesOnFile = [...usernamesOnFile, ...excludeUsers];
+        setUsernames(usernamesOnFile);
+    };
+
 
     const closeDeleteDialog = () => {
         setIsDeleteDialogOpen(false);
@@ -188,26 +193,33 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
         <div>
             <AlertDialog open={isSharedDialogOpen}>
                 <AlertDialogContent>
-                    <AlertDialogHeader>
+                    <AlertDialogHeader className="space-y-6">
                         <AlertDialogTitle>Share {row.original.name}</AlertDialogTitle>
                         <AlertDialogDescription asChild>
                             <div className="w-full flex flex-col space-y-4">
                                 <ComboBoxUsers userList={filterUsernames} onUserSelect={handleUserSelect}/>
                                 <div>
                                     <h1 className="text-lg font-semibold">Shared with</h1>
-                                    <div>
-                                        {sharedWithUsers?.map((user, index) => (
-                                            <div key={index} className="flex justify-between items-center space-y-2">
-                                                <span>{user.username}</span>
-                                                <Button
-                                                    onClick={() => handleRemoveUser(user.id, row.original.id, user.username)}
-                                                    variant="destructive"
-                                                >
-                                                    Remove
-                                                </Button>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    {sharedWithUsers && (
+                                        <div>
+                                            {sharedWithUsers.length > 0 ? sharedWithUsers?.map((user, index) => (
+                                                <div key={index}
+                                                     className="flex justify-between items-center space-y-2">
+                                                    <div className="flex items-center justify-between space-x-4">
+                                                        <div
+                                                            className="flex items-center justify-between rounded-full bg-[#5838FB] h-6 w-6">
+                                                            <span className="flex items-center justify-center w-full h-full">{user.username[0]}</span>
+                                                        </div>
+                                                        <span>{user.username}</span>
+                                                    </div>
+                                                    <Button variant="destructive"
+                                                            onClick={() => handleRemoveUser(user.id, row.original.id, user.username)}>
+                                                    Remove <DeleteIcon/>
+                                                    </Button>
+                                                </div>
+                                            )) : <div>This file is not shared with any users</div>}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </AlertDialogDescription>
@@ -255,7 +267,7 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuItem onClick={async () => {
-                        openShareDialog(row.original.id);
+                        await openShareDialog(row.original.id);
                     }}
                                       className="w-full flex items-center justify-between">
                         <span>Share file</span>

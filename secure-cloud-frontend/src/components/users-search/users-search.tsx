@@ -1,5 +1,5 @@
 import * as React from "react"
-import {Check, ChevronsUpDown} from "lucide-react"
+import {Check, ChevronsUpDown, XIcon} from "lucide-react"
 import {cn} from "@/lib/utils"
 import {Button} from "@/components/ui/button"
 import {Command, CommandEmpty, CommandGroup, CommandItem, CommandList,} from "@/components/ui/command"
@@ -31,20 +31,25 @@ export default function ComboBoxUsers({ userList, onUserSelect }: ComboBoxUserPr
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={open}
-                    className="w-[200px] justify-between"
-                >
-                    {value && userList
-                        ? userList.find((u) => u.username === value)?.username
-                        : "Select user..."}
-                    <ChevronsUpDown className="opacity-50" />
-                </Button>
+                <div className="w-full flex items-center justify-between">
+                    <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-full justify-between"
+                    >
+                        {value && userList
+                            ? userList.find((u) => u.username === value)?.username
+                            : "Select user..."}
+                        <ChevronsUpDown className="opacity-50" />
+                    </Button>
+                    {value && (
+                        <XIcon onClick={()=> setValue("")}/>
+                    )}
+                </div>
             </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-                <Command>
+            <PopoverContent className="w-full p-0">
+                <Command className="w-full">
                     <CommandList>
                         {filteredUsers.length === 0 ? (
                             <CommandEmpty>No user found.</CommandEmpty>
