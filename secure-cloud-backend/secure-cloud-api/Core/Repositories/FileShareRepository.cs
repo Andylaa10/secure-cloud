@@ -44,11 +44,11 @@ public class FileShareRepository : IFileShareRepository
     }
 
     // Get all users a file is shared with
-    public async Task<IEnumerable<FileShare>> GetUsersOnSharedFile(Guid fileId)
+    public async Task<List<string>> GetUsersOnSharedFile(Guid fileId)
     {
-        return await _context.SharedFiles
-            .Where(sharedFile => sharedFile.FileId == fileId)
-            .ToListAsync();
+        var usernames = _context.SharedFiles.Where(f => f.FileId == fileId).Select(f => f.SharedWithUserDisplayName).ToListAsync();
+        
+        return await usernames;
     }
 
     // Share a file with a user

@@ -43,15 +43,14 @@ public class FileShareService : IFileShareService
         }
     }
 
-    public async Task<IEnumerable<FileShare>> GetUsersOnSharedFile(Guid fileId)
-    {
+    public async Task<List<string>> GetUsersOnSharedFile(Guid fileId)    {
         if (fileId == Guid.Empty)
             throw new ArgumentException("File ID cannot be empty");
 
         try
         {
             var sharedUsers = await _shareFileShareRepository.GetUsersOnSharedFile(fileId);
-            return _mapper.Map<IEnumerable<FileShare>>(sharedUsers);
+            return sharedUsers;
         }
         catch (Exception e)
         {

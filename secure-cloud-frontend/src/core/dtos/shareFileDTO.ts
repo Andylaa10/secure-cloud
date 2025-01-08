@@ -1,6 +1,7 @@
 export interface ShareFileDTO {
     fileId: string;
     sharedWithUserId: string;
-    OwnerDisplayName: string;
+    ownerDisplayName: string;
     encryptedKey: string;
+    sharedWithUserDisplayName: string;
 }

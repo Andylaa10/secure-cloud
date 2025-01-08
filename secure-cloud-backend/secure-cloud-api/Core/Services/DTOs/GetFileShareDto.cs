@@ -6,6 +6,7 @@ public class GetFileShareDto
     public Guid FileId { get; set; }
     public string SharedWithUserId { get; set; }
     public string OwnerDisplayName { get; set; }
+    public string SharedWithUserDisplayName { get; set; }
     public DateTime SharedAt { get; set; }
     public string EncryptedKey { get; set; }
 }

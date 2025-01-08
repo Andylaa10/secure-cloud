@@ -112,8 +112,9 @@ export default function Home() {
         const shareFileDTO: ShareFileDTO = {
           fileId: newFile.file.id,
           encryptedKey: encryptedAesKey,
-          OwnerDisplayName: user.preferred_username,
+          ownerDisplayName: user.preferred_username,
           sharedWithUserId: user?.sub,
+          sharedWithUserDisplayName: user.preferred_username,
         };
 
         await fileShareService.shareFile(shareFileDTO, token)

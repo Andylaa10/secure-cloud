@@ -44,8 +44,10 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
     const [token] = useAtom(TokenAtom);
     const [user] = useAtom(UserAtom);
     const [isSharedDialogOpen, setIsSharedDialogOpen] = useState(false);
-    const [searchUsers, setSearchUsers] = useState<KeyCloakCustomUser[] | null>(null);
+    const [usersFromKeycloak, setUsersFromKeycloak] = useState<KeyCloakCustomUser[] | null>(null);
     const [selectedUser, setSelectedUser] = useState<KeyCloakCustomUser | null>(null);
+    const [usernames, setUsernames] = useState<string[] | null>(null);
+    const [filterUsernames, setFilterUsernames] = useState<KeyCloakCustomUser[] | null>(null);
 
     const handleUserSelect = (user: KeyCloakCustomUser | null) => {
         setSelectedUser(user);
@@ -59,8 +61,9 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
             const shareFileDTO: ShareFileDTO = {
                 fileId: fileId,
                 encryptedKey: encryptedAesKey,
-                OwnerDisplayName: user!.preferred_username,
+                ownerDisplayName: user!.preferred_username,
                 sharedWithUserId: selectedUser!.id,
+                sharedWithUserDisplayName: selectedUser!.username,
             };
 
             await fileShareService.shareFile(shareFileDTO, token)
@@ -77,23 +80,35 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
     };
 
     useEffect(() => {
-        if (isSharedDialogOpen && !searchUsers) {
+        if (isSharedDialogOpen && !usersFromKeycloak) {
             keyCloakService.getAllUsers(token).then(users => {
                 if (users) {
-                    const filteredUsers = users.filter(
-                        u => u.username !== 'admin' && u.username !== user!.preferred_username
-                    );
-                    setSearchUsers(filteredUsers);
+                    setUsersFromKeycloak(users);
                 }
             });
         }
-    }, [isSharedDialogOpen, searchUsers, token]);
+    }, [isSharedDialogOpen, usersFromKeycloak]);
+
+    useEffect(() => {
+        if(isSharedDialogOpen && usersFromKeycloak && usernames) {
+            const filteredUsers = usersFromKeycloak.filter(
+                u => !usernames.includes(u.username));
+            setFilterUsernames(filteredUsers)
+        }
+    }, [isSharedDialogOpen, usersFromKeycloak, usernames]);
 
     const closeSharedDialog = () => {
         setIsSharedDialogOpen(false);
         setTimeout(()=> {
             document.body.style.pointerEvents = 'auto';
         },500);
+    }
+
+    const openShareDialog = async (id: string) => {
+        setIsSharedDialogOpen(true);
+        const usernamesOnFile = await fileShareService.getUsersOnSharedFile(id, token);
+        const updateUsernamesOnFile = [...usernamesOnFile, 'admin']
+        setUsernames(updateUsernamesOnFile);
     }
 
     return (
@@ -104,7 +119,7 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
                         <AlertDialogTitle>Share {row.original.name}</AlertDialogTitle>
                         <AlertDialogDescription asChild>
                             <div className="w-full">
-                                <ComboBoxUsers userList={searchUsers} onUserSelect={handleUserSelect}  />
+                                <ComboBoxUsers userList={filterUsernames} onUserSelect={handleUserSelect}  />
                             </div>
                         </AlertDialogDescription>
 
@@ -130,7 +145,9 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => setIsSharedDialogOpen(true)}
+                    <DropdownMenuItem onClick={async ()=> {
+                        openShareDialog(row.original.id);
+                    }}
                                       className="w-full flex items-center justify-between">
                         <span>Share file</span>
                         <ShareIcon className="h-4 w-4"></ShareIcon>

@@ -21,14 +21,13 @@ export class FileShareService {
         return response.data;
     }
 
-    //TODO
     /**
      * Returns a list of usernames on shared file
      * @param fileId
      * @param accessToken
      */
     async getUsersOnSharedFile(fileId: string, accessToken: string): Promise<string[]> {
-        const response = await this.api.get<string[]>(`FileShare/files/${fileId}/users`, {
+        const response = await this.api.get<string[]>(`FileShare/file/${fileId}/users`, {
             headers: {
                 "Authorization": `Bearer ${accessToken}`
             }

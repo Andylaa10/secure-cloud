@@ -43,7 +43,7 @@ public class FileShareController : ControllerBase
     /// Get all users a file is shared with.
     /// </summary>
     [HttpGet("file/{fileId}/users")]
-    public async Task<IActionResult> GetUsersOnSharedFile(Guid fileId)
+    public async Task<IActionResult> GetUsersOnSharedFile([FromRoute] string fileId)
     {
         var tokenIsValid = HttpContext.Items["TokenIsValid"] as bool? ?? false;
 
@@ -54,9 +54,7 @@ public class FileShareController : ControllerBase
 
         try
         {
-            
-            //TODO list of usernames
-            var sharedUsers = await _fileShareService.GetUsersOnSharedFile(fileId);
+            var sharedUsers = await _fileShareService.GetUsersOnSharedFile(new Guid(fileId));
             return Ok(sharedUsers);
         }
         catch (Exception ex)

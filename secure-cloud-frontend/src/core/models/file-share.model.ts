@@ -5,4 +5,5 @@ export interface FileShare{
     ownerDisplayName: string;
     sharedAt: Date;
     encryptedKey: string;
+    sharedWithUserDisplayName: string;
 }

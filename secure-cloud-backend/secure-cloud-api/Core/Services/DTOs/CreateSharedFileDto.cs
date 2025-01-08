@@ -6,4 +6,5 @@ public class CreateSharedFileDto
     public string SharedWithUserId { get; set; }
     public string OwnerDisplayName { get; set; }
     public string EncryptedKey { get; set; }
+    public string SharedWithUserDisplayName { get; set; }
 }
