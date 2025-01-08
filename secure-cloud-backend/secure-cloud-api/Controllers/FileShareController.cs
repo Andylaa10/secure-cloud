@@ -54,7 +54,7 @@ public class FileShareController : ControllerBase
 
         try
         {
-            var sharedUsers = await _fileShareService.GetUsersOnSharedFile(new Guid(fileId));
+            var sharedUsers = await _fileShareService.GetUsersOnSharedFile(Guid.Parse(fileId));
             return Ok(sharedUsers);
         }
         catch (Exception ex)
@@ -79,7 +79,7 @@ public class FileShareController : ControllerBase
         try
         {
             await _fileShareService.ShareFile(dto);
-            return StatusCode(201,"Successfully shared");
+            return StatusCode(201, "Successfully shared");
         }
         catch (Exception ex)
         {
@@ -102,7 +102,7 @@ public class FileShareController : ControllerBase
 
         try
         {
-            await _fileShareService.RemoveUserFromFile(new Guid(sharedWithUserId),new Guid(sharedFileId));
+            await _fileShareService.RemoveUserFromFile(Guid.Parse(sharedWithUserId), Guid.Parse(sharedFileId));
             return Ok("Successfully remove user");
         }
         catch (Exception ex)

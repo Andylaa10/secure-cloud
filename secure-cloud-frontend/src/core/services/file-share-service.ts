@@ -48,7 +48,6 @@ export class FileShareService {
     }
 
 
-    //TODO
     async removeUserFromFile(sharedWithUserId: string, sharedFileId: string, accessToken: string): Promise<void> {
         const response = await this.api.delete(`FileShare/${sharedWithUserId}/${sharedFileId}`, {
             headers: {

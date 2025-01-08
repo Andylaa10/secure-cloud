@@ -43,7 +43,8 @@ public class FileShareService : IFileShareService
         }
     }
 
-    public async Task<List<string>> GetUsersOnSharedFile(Guid fileId)    {
+    public async Task<List<string>> GetUsersOnSharedFile(Guid fileId)
+    {
         if (fileId == Guid.Empty)
             throw new ArgumentException("File ID cannot be empty");
 
@@ -77,7 +78,7 @@ public class FileShareService : IFileShareService
 
         try
         {
-            await _shareFileShareRepository.RemoveUserFromFile(sharedFileId, sharedFileId);
+            await _shareFileShareRepository.RemoveUserFromFile(sharedWithUserId, sharedFileId);
         }
         catch (Exception e)
         {

@@ -21,12 +21,12 @@ public class FileShareRepository : IFileShareRepository
 
         var files = await _context.Files
             .ToListAsync();
-        
+
         var fileshares = await _context.SharedFiles
             .Where(sharedFile => sharedFile.SharedWithUserId == userId)
             .Include(sf => sf.File)
             .ToListAsync();
-        
+
         var fileKeyMap = fileshares.ToDictionary(s => s.FileId, s => s.EncryptedKey);
 
         foreach (var file in files)
@@ -47,7 +47,7 @@ public class FileShareRepository : IFileShareRepository
     public async Task<List<string>> GetUsersOnSharedFile(Guid fileId)
     {
         var usernames = _context.SharedFiles.Where(f => f.FileId == fileId).Select(f => f.SharedWithUserDisplayName).ToListAsync();
-        
+
         return await usernames;
     }
 
@@ -61,13 +61,23 @@ public class FileShareRepository : IFileShareRepository
     // Remove a shared file from a user
     public async Task RemoveUserFromFile(Guid sharedWithUserId, Guid sharedFileId)
     {
-        var sharedFile = await _context.SharedFiles.FirstOrDefaultAsync(sf => sf.Id == sharedFileId);
-
-        if (sharedFile == null)
+        // Validate parameters
+        if (sharedWithUserId == Guid.Empty || sharedFileId == Guid.Empty)
         {
-            throw new KeyNotFoundException($"No shared file found with id: {sharedFileId}");
+            throw new ArgumentException("Invalid user ID or file ID.");
         }
 
+        // Fetch the shared file record
+        var sharedFile = await _context.SharedFiles
+            .FirstOrDefaultAsync(sf => sf.SharedWithUserId == sharedWithUserId.ToString() && sf.FileId == sharedFileId);
+
+        // Handle the case where the record is not found
+        if (sharedFile == null)
+        {
+            throw new KeyNotFoundException($"No shared file found with id: {sharedFileId} for user: {sharedWithUserId}");
+        }
+
+        // Remove the record and save changes
         _context.SharedFiles.Remove(sharedFile);
         await _context.SaveChangesAsync();
     }
