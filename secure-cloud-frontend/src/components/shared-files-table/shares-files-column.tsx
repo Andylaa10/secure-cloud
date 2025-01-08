@@ -1,23 +1,7 @@
 import {ColumnDef} from "@tanstack/react-table";
 import {File} from "@/core/models/file.model.ts";
 import {DownloadCloudIcon} from "lucide-react";
-
-const downloadFile = async (content: Uint8Array, name: string): Promise<void> => {
-    try {
-
-        const contentToDownload = new Blob([content], {type: 'application/octet-stream'});
-
-        const url = URL.createObjectURL(contentToDownload);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = name;
-        a.click();
-
-        URL.revokeObjectURL(url);
-    } catch (error) {
-        console.error('File download error:', error);
-    }
-};
+import {downloadFile} from "@/utils/download-file.ts";
 
 export const shared_files_columns: ColumnDef<File>[] = [
     {

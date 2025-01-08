@@ -1,37 +1,36 @@
 import {File} from "@/core/models/file.model.ts";
-import {DownloadCloudIcon, MoreHorizontal, PenIcon, ShareIcon, Trash2Icon} from "lucide-react";
+import {CheckCircle2Icon, DownloadCloudIcon, MoreHorizontal, PenIcon, ShareIcon, Trash2Icon} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu.tsx";
 import {Row} from "@tanstack/react-table";
 import {CryptoService} from "@/core/services/crypto-service.ts";
-import {FileService} from "@/core/services/file-service.ts";
 import {useAtom} from "jotai/index";
 import {TokenAtom} from "@/core/atoms/token-atom.ts";
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
 } from "@/components/ui/alert-dialog.tsx";
-import {useEffect, useState} from "react";
 import {KeyCloakCustomUser} from "@/core/models/user.model.ts";
 import {KeycloakService} from "@/core/services/keycloak-service.ts";
 import ComboBoxUsers from "@/components/users-search/users-search.tsx";
-import {UploadFileDTO} from "@/core/dtos/uploadFileDTO.ts";
-import {arrayBufferToBase64} from "@/utils/array-buffer-to-base64.ts";
 import {UserAtom} from "@/core/atoms/user-atom.ts";
 import {FileShareService} from "@/core/services/file-share-service.ts";
 import {ShareFileDTO} from "@/core/dtos/shareFileDTO.ts";
+import {downloadFile} from "@/utils/download-file.ts";
+import {toast} from "@/hooks/use-toast.ts";
+import {useEffect, useState} from "react";
 
 type FileDropdownActionsProps = {
     row: Row<File>;
@@ -52,29 +51,10 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
         setSelectedUser(user);
     };
 
-    const downloadFile = async (content: Uint8Array, name: string): Promise<void> => {
+
+    const shareFile = async (fileId: string, key: string): Promise<void> => {
         try {
-
-            const contentToDownload = new Blob([content], {type: 'application/octet-stream'});
-
-            const url = URL.createObjectURL(contentToDownload);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = name;
-            a.click();
-
-            URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error('File download error:', error);
-        }
-    };
-
-    const shareFile = async (fileId: string): Promise<void> => {
-        try {
-            const aesKey = await cryptoService.generateAesKey();
-            //Cannot go in here if a user is not selected
-            console.log(selectedUser!.attributes['publicKey'][0])
-            const encryptedAesKey = await cryptoService.encryptAesKey(selectedUser!.attributes['publicKey'][0], aesKey);
+            const encryptedAesKey = await cryptoService.encryptAesKey(selectedUser!.attributes['publicKey'][0], key);
 
             const shareFileDTO: ShareFileDTO = {
                 fileId: fileId,
@@ -84,8 +64,13 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
             };
 
             await fileShareService.shareFile(shareFileDTO, token)
-        }
-        catch (error) {
+
+          toast({
+            icon: <CheckCircle2Icon className="text-green-600"/>,
+            title: "File is shared successfully!",
+            subTitle: selectedUser!.username + " can now access the file.",
+          });
+        } catch (error) {
             console.error('Error sharing file: ', error);
         }
         closeSharedDialog();
@@ -125,7 +110,7 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
 
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <Button variant="outline" disabled={!selectedUser} onClick={async () => await shareFile(row.original.id)}>Share</Button>
+                        <Button variant="outline" disabled={!selectedUser} onClick={async () => await shareFile(row.original.id, row.original.key!)}>Share</Button>
                         <AlertDialogAction
                             className="hover: select-none shadow-lg transform active:scale-75 transition-transform"
                             onClick={() => {

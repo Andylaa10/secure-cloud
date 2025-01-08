@@ -8,8 +8,6 @@ export class FileService {
     baseURL: `http://localhost:9090/api`
   });
 
-  //TODO GetSharedFiles (how to do that?)
-
   getAllFilesByOwnerId = async (accessToken: string): Promise<Map<string, File> | null> => {
     try {
       const response = await this.api.get<Map<string, File>>(`/file/getByOwnerId`, {

@@ -1,9 +1,7 @@
-import { Button } from "@/components/ui/button"
-
 export default function NotFound() {
     return (
         <div>
-            <Button>Click me</Button>
+            <h1>Page Not found</h1>
         </div>
     )
 }

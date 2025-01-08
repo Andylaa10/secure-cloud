@@ -1,21 +1,10 @@
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from "@/components/ui/command"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import { KeyCloakCustomUser } from "@/core/models/user.model.ts"
+import {Check, ChevronsUpDown} from "lucide-react"
+import {cn} from "@/lib/utils"
+import {Button} from "@/components/ui/button"
+import {Command, CommandEmpty, CommandGroup, CommandItem, CommandList,} from "@/components/ui/command"
+import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover"
+import {KeyCloakCustomUser} from "@/core/models/user.model.ts"
 
 type ComboBoxUserProps = {
     userList: KeyCloakCustomUser[] | null;
@@ -56,12 +45,6 @@ export default function ComboBoxUsers({ userList, onUserSelect }: ComboBoxUserPr
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
                 <Command>
-                    <CommandInput
-                        placeholder="Search user..."
-                        className="h-9 z-50"
-                        value={value}
-                        onChange={(e) => setValue(e.target.value)}
-                    />
                     <CommandList>
                         {filteredUsers.length === 0 ? (
                             <CommandEmpty>No user found.</CommandEmpty>

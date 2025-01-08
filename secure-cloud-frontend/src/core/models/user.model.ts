@@ -11,6 +11,10 @@ export interface KeyCloakUser {
     publicKey: string;
 }
 
+interface KeyCloakAttribute {
+    [key: string]: string[];
+}
+
 export interface KeyCloakCustomUser {
     access: {
         manageGroupMembership: boolean;
@@ -24,7 +28,7 @@ export interface KeyCloakCustomUser {
     manageGroupMembership: boolean;
     mapRoles: boolean;
     view: boolean;
-    attributes: any[];
+    attributes: KeyCloakAttribute;
     createdTimestamp: number;
     email: string;
     emailVerified: boolean;

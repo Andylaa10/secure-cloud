@@ -21,6 +21,7 @@ export class FileShareService {
         return response.data;
     }
 
+    //TODO
     /**
      * Returns a list of usernames on shared file
      * @param fileId
@@ -48,6 +49,7 @@ export class FileShareService {
     }
 
 
+    //TODO
     async removeUserFromFile(sharedWithUserId: string, sharedFileId: string, accessToken: string): Promise<void> {
         const response = await this.api.delete(`FileShare/${sharedWithUserId}/${sharedFileId}`, {
             headers: {

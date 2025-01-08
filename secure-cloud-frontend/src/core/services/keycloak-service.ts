@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {RegisterDTO} from "@/core/dtos/registerDTO.ts";
-import {KeyCloakCustomUser, KeyCloakUser} from '../models/user.model';
+import {KeyCloakCustomUser} from '../models/user.model';
 import {UpdateUserDTO} from "@/core/dtos/updateUserDTO.ts";
 import {Token} from "@/core/models/token.model.ts";
 
@@ -59,7 +59,7 @@ export class KeycloakService {
      * Register a new user and setting the password
      * @param dto
      */
-    async register(dto: RegisterDTO): Promise<KeyCloakUser | null> {
+    async register(dto: RegisterDTO): Promise<KeyCloakCustomUser[] | null> {
         const token = await this.getToken();
 
         if (!token) return null;
@@ -84,7 +84,6 @@ export class KeycloakService {
 
         if (result.status === 201 && token) {
             // Set the password
-            console.log(result);
             const newUser = await this.getUserByUsername(data.username, token.access_token)
             if (newUser) {
                 await this.setPassword(token.access_token, newUser[0]['id'], dto.password);
