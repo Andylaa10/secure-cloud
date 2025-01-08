@@ -1,5 +1,5 @@
 import {File} from "@/core/models/file.model.ts";
-import {CheckCircle2Icon, DownloadCloudIcon, MoreHorizontal, PenIcon, ShareIcon, Trash2Icon} from "lucide-react";
+import {CheckCircle2Icon, DownloadCloudIcon, MoreHorizontal, ShareIcon, Trash2Icon} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {
   DropdownMenu,
@@ -31,6 +31,8 @@ import {ShareFileDTO} from "@/core/dtos/shareFileDTO.ts";
 import {downloadFile} from "@/utils/download-file.ts";
 import {toast} from "@/hooks/use-toast.ts";
 import {useEffect, useState} from "react";
+import {FileService} from "@/core/services/file-service.ts";
+import {MyFilesAtom} from "@/core/atoms/my-files-atom.ts";
 
 type FileDropdownActionsProps = {
     row: Row<File>;
@@ -39,11 +41,15 @@ type FileDropdownActionsProps = {
 export default function FileDropdownActions({row}: FileDropdownActionsProps): JSX.Element {
     const cryptoService = new CryptoService();
     const fileShareService = new FileShareService();
+    const fileService = new FileService();
     const keyCloakService = new KeycloakService();
 
     const [token] = useAtom(TokenAtom);
     const [user] = useAtom(UserAtom);
+    const [myFiles, setMyFiles] = useAtom(MyFilesAtom);
+
     const [isSharedDialogOpen, setIsSharedDialogOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [usersFromKeycloak, setUsersFromKeycloak] = useState<KeyCloakCustomUser[] | null>(null);
     const [selectedUser, setSelectedUser] = useState<KeyCloakCustomUser | null>(null);
     const [usernames, setUsernames] = useState<string[] | null>(null);
@@ -68,16 +74,18 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
 
             await fileShareService.shareFile(shareFileDTO, token)
 
-          toast({
-            icon: <CheckCircle2Icon className="text-green-600"/>,
-            title: "File is shared successfully!",
-            subTitle: selectedUser!.username + " can now access the file.",
-          });
+            toast({
+                icon: <CheckCircle2Icon className="text-green-600"/>,
+                title: "File is shared successfully!",
+                subTitle: selectedUser!.username + " can now access the file.",
+            });
         } catch (error) {
             console.error('Error sharing file: ', error);
         }
         closeSharedDialog();
     };
+
+
 
     useEffect(() => {
         if (isSharedDialogOpen && !usersFromKeycloak) {
@@ -111,6 +119,39 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
         setUsernames(updateUsernamesOnFile);
     }
 
+    const closeDeleteDialog = () => {
+        setIsDeleteDialogOpen(false);
+        setTimeout(()=> {
+            document.body.style.pointerEvents = 'auto';
+        },500);
+    };
+
+    const openDeleteDialog = () => {
+        setIsDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            await fileService.deleteFile(token, row.original.id);
+
+            toast({
+                icon: <CheckCircle2Icon className="text-red-600" />,
+                title: "File deleted successfully!",
+                subTitle: `${row.original.name} has been removed.`,
+            });
+
+            const newFileList = myFiles?.filter(f => {
+                return f.id !== row.original.id;
+            });
+
+            setMyFiles(newFileList!);
+        } catch (error) {
+            console.error("Error deleting file: ", error);
+        } finally {
+            closeDeleteDialog();
+        }
+    };
+
     return (
         <div>
             <AlertDialog open={isSharedDialogOpen}>
@@ -133,6 +174,26 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
                             }}>
                             Cancel
                         </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Delete Dialog */}
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete {row.original.name}?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete this file? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <Button variant="outline" onClick={closeDeleteDialog}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={confirmDelete}>
+                            Confirm
+                        </Button>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
@@ -159,11 +220,9 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
                         <DownloadCloudIcon className="h-4 w-4"></DownloadCloudIcon>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator/>
-                    <DropdownMenuItem className="w-full flex items-center justify-between">
-                        <span>Update file</span>
-                        <PenIcon className="h-4 w-4"></PenIcon>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="w-full flex items-center justify-between">
+                    <DropdownMenuItem onClick={async ()=> {
+                        openDeleteDialog();
+                    }} className="w-full flex items-center justify-between">
                         <span>Delete file</span>
                         <Trash2Icon className="h-4 w-4"></Trash2Icon>
                     </DropdownMenuItem>

@@ -66,7 +66,7 @@ export class FileService {
 
   deleteFile = async (accessToken: string, id: string) => {
     try{
-      const response = await this.api.delete(`/file/delete/${id}`, {
+      const response = await this.api.delete(`/file/deleteFile/${id}`, {
         headers: {
           "Authorization": `Bearer ${accessToken}`
         }
