@@ -13,7 +13,7 @@ import {Toaster} from "@/components/ui/toaster.tsx";
 import {Card, CardContent, CardHeader} from "@/components/ui/card.tsx";
 import {PasswordInput} from "@/components/ui/password-input.tsx";
 import {useState} from "react";
-import {ArrowLeftIcon, SkipBackIcon} from "lucide-react";
+import {ArrowLeftIcon} from "lucide-react";
 
 export default function SignUp() {
   const [isRegisterClicked, setIsRegisterClicked] = useState(false);
