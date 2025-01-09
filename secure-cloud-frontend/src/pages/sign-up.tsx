@@ -13,6 +13,7 @@ import {Toaster} from "@/components/ui/toaster.tsx";
 import {Card, CardContent, CardHeader} from "@/components/ui/card.tsx";
 import {PasswordInput} from "@/components/ui/password-input.tsx";
 import {useState} from "react";
+import {ArrowLeftIcon, SkipBackIcon} from "lucide-react";
 
 export default function SignUp() {
   const [isRegisterClicked, setIsRegisterClicked] = useState(false);
@@ -70,6 +71,13 @@ export default function SignUp() {
   return (
       <div className="w-full h-screen flex justify-center items-center flex-col">
         <Card className={"min-w-96"}>
+          {isRegisterClicked && (
+              <Button
+                  variant="outline"
+                  className="w-11 my-4 mx-6" onClick={()=>setIsRegisterClicked(false)}>
+                <ArrowLeftIcon/>
+              </Button>
+          )}
           <CardHeader className="flex justify-center items-center px-2 py-6">
             <img src="src/assets/Logo.png" alt="Logo"/>
             <div className="text-xl py-2 font-bold">
@@ -170,13 +178,6 @@ export default function SignUp() {
                 )}
                 {!isRegisterClicked && (
                     <Button className="w-full" variant="outline" onClick={() => redirect()}>Log in via SSO</Button>)}
-                {isRegisterClicked && (
-                    <Button
-                        variant="outline"
-                        className="w-full" onClick={()=>setIsRegisterClicked(false)}>
-                      Sign In
-                    </Button>
-                )}
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t"></span>
