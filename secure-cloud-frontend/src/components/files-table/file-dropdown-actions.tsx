@@ -56,7 +56,7 @@ export default function FileDropdownActions({row}: FileDropdownActionsProps): JS
     const [sharedWithUsers, setSharedWithNames] = useState<KeyCloakCustomUser[] | null>(null);
     const [filterUsernames, setFilterUsernames] = useState<KeyCloakCustomUser[] | null>(null);
 
-    const excludeUsers = ["admin", user.preferred_username!];
+    const excludeUsers = ["admin", user!.preferred_username!];
 
     const handleUserSelect = (user: KeyCloakCustomUser | null) => {
         setSelectedUser(user);

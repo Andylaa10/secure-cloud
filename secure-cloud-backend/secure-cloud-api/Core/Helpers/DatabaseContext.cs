@@ -26,8 +26,7 @@ public class DatabaseContext : DbContext
         // Auto generate id
         modelBuilder.Entity<File>().Property(f => f.Id).ValueGeneratedOnAdd();
         modelBuilder.Entity<FileShare>().Property(sf => sf.Id).ValueGeneratedOnAdd();
-        
-        // Setup relationship & Cascade delete
+
         modelBuilder.Entity<FileShare>()
             .HasOne(sf => sf.File)
             .WithMany(f => f.SharedWith)
