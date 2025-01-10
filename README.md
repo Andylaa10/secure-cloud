@@ -2,9 +2,15 @@
 
 <br/>
 
-<div align="center">
   <img src="https://github.com/user-attachments/assets/f8bc80d5-ec28-44ba-bdf0-5fc8bc7705e8" style="width: 450px; height: auto;">
-</div>
+
+<br/>
+
+### Project developed by:
+
+* [@Andy Laa](https://github.com/Andylaa10/)
+* [@Marcus Iversen](https://github.com/MarcusIversen/)
+* [@Kristian Hollænder](https://github.com/kristianHollaender/)
 
 
 ## Business Case
@@ -160,6 +166,21 @@ docker compose up --build
 <details>
    <summary>My Shared Files</summary>
    <img src="https://github.com/user-attachments/assets/cb1d53de-4d40-4d89-b2fd-b2bc31398bdd" style="display: inline-block; margin: 0 auto; width: 900px; height: auto;">
+</details>
+
+
+## Secure Cloud Flow Diagrams
+<details>
+   <summary>User Login and Upload flow</summary>
+   <img src="https://github.com/user-attachments/assets/4f8ee729-2e65-494d-a159-38e5e8b87c25" style="display: inline-block; margin: 0 auto; width: 750px; height: auto;">
+</details>
+<details>
+   <summary>File sharing flow</summary>
+   <img src="https://github.com/user-attachments/assets/01fbd876-3a96-474e-bfff-d6b6bffee840" style="display: inline-block; margin: 0 auto; width: 750px; height: auto;">
+</details>
+<details>
+   <summary>File Decryption Flow</summary>
+   <img src="https://github.com/user-attachments/assets/c3f18fca-5789-46d0-bee5-fdad86d4649b" style="display: inline-block; margin: 0 auto; width: 750px; height: auto;">
 </details>
 
 
