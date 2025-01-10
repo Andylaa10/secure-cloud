@@ -102,3 +102,64 @@ Value = text
 3. Press the button that checks all roles and assign all possible roles to the admin.
 4. You are now done with configuring users 🔥
 
+## Environment Variables
+- You have now set up KeyCloak, and the last step is to configure your `.env` files in the `secure-cloud-frontend` and `secure-cloud-backend`.
+
+<br/> 
+
+### secure-cloud-frontend 
+1. In the `secure-cloud-frontend` folder, create a new file named `.env`.
+2. In this file, the content should be as following: 
+```
+VITE_CLIENT_SECRET=G7jrxxxxxxxxxxxxxxxxxxxxxxxx
+VITE_CLIENT_ID=secure-cloud
+```
+### secure-cloud-backend
+1. In the `secure-cloud-backend` folder, create a new file named `.env`
+2. In this file, the content should be as following:
+
+```
+CONNECTION_STRING="Host=secureclouddb;Port=5432;Username=postgres;Password=postgres;Database=SecureCloudDB"
+```
+
+### ⚠️  IMPORTANT: To enable your .env files correctly and get the project to compose correctly!! ⚠️
+1. Stop the Docker Container called `secure-cloud` - BUT DO NOT DELETE IT ⚠️
+2. Compose up again with the following command:
+```
+docker compose up --build
+```
+
+# You are now fully configured and ready to run the Secure Cloud 🔥🔥🔥
+
+## Secure Cloud UI-Images
+
+<details>
+   <summary>Login Page</summary>
+   <img src="https://github.com/user-attachments/assets/bfe45911-5c0d-45ee-b822-6a104a38d9bc" style="display: inline-block; margin: 0 auto; width: 900px; height: auto;">
+</details>
+<details>
+   <summary>Register Page</summary>
+   <img src="https://github.com/user-attachments/assets/191fdd38-5fe1-4bf6-939e-570543a48029" style="display: inline-block; margin: 0 auto; width: 900px; height: auto;">
+</details>
+<details>
+   <summary>Save Private Key</summary>
+   <img src="https://github.com/user-attachments/assets/ea1f2e60-f12a-44f9-bdcb-4f4777ba7d9e" style="display: inline-block; margin: 0 auto; width: 900px; height: auto;">
+</details>
+<details>
+   <summary>Insert Private Key</summary>
+   <img src="https://github.com/user-attachments/assets/32ab05dc-7d5c-4a33-b9fa-7257957eaf7e" style="display: inline-block; margin: 0 auto; width: 900px; height: auto;">
+</details>
+<details>
+   <summary>Home Page</summary>
+   <img src="https://github.com/user-attachments/assets/3d520771-a66a-46dc-829e-99ca180acc8c" style="display: inline-block; margin: 0 auto; width: 900px; height: auto;">
+</details>
+<details>
+   <summary>Share File</summary>
+   <img src="https://github.com/user-attachments/assets/78f8d5df-1aca-4dfe-8f68-2a116a1c4760" style="display: inline-block; margin: 0 auto; width: 900px; height: auto;">
+</details>
+<details>
+   <summary>My Shared Files</summary>
+   <img src="https://github.com/user-attachments/assets/cb1d53de-4d40-4d89-b2fd-b2bc31398bdd" style="display: inline-block; margin: 0 auto; width: 900px; height: auto;">
+</details>
+
+
