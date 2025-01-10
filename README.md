@@ -6,9 +6,9 @@
 
 <br/>
 
-### Project developed by:
+### Project developed by :pencil2::
 
-* [@Andy Laa](https://github.com/Andylaa10/)
+* [@Andy Lam](https://github.com/Andylaa10/)
 * [@Marcus Iversen](https://github.com/MarcusIversen/)
 * [@Kristian Hollænder](https://github.com/kristianHollaender/)
 
@@ -161,7 +161,7 @@ docker compose up --build
 </details>
 <details>
    <summary>Share File</summary>
-   <img src="https://github.com/user-attachments/assets/78f8d5df-1aca-4dfe-8f68-2a116a1c4760" style="display: inline-block; margin: 0 auto; width: 900px; height: auto;">
+   <img src="https://github.com/user-attachments/assets/239c9531-4d13-4ece-986d-756ee09a824d" style="display: inline-block; margin: 0 auto; width: 900px; height: auto;">
 </details>
 <details>
    <summary>My Shared Files</summary>
